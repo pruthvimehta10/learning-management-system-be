@@ -35,7 +35,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
     const [score, setScore] = useState(0)
 
     if (questions.length === 0) return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background">
             <Navbar />
             <div className="max-w-3xl mx-auto px-4 py-12 text-center">
                 <h2 className="text-2xl font-black text-foreground">No exam questions available.</h2>
@@ -68,7 +68,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
 
     if (submitted) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-background">
                 <Navbar />
                 <div className="max-w-3xl mx-auto px-4 py-12">
                     <Card className="border-4 border-foreground" style={{ boxShadow: '8px 8px 0px rgba(0,0,0,0.15)' }}>
@@ -98,7 +98,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                             )}
 
                             <div className="flex gap-4 justify-center">
-                                <Button asChild className="border-4 border-foreground bg-white text-foreground font-black hover:bg-muted">
+                                <Button asChild className="border-4 border-foreground bg-background text-foreground font-black hover:bg-muted">
                                     <Link href={`/courses/${course.id}`}>Back to Course</Link>
                                 </Button>
                                 {!isPassed && (
@@ -123,7 +123,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
     const isLastQuestion = currentQuestion === questions.length - 1
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background">
             <Navbar />
 
             <div className="max-w-3xl mx-auto px-4 py-12">
@@ -139,7 +139,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                     <CardHeader className="border-b-4 border-foreground bg-secondary/30 p-6">
                         <div className="flex justify-between items-center">
                             <CardTitle className="text-2xl font-black">Final Exam: {course.title}</CardTitle>
-                            <span className="font-bold bg-white border-2 border-foreground px-3 py-1 text-sm">
+                            <span className="font-bold bg-background border-2 border-foreground px-3 py-1 text-sm">
                                 Question {currentQuestion + 1}/{questions.length}
                             </span>
                         </div>

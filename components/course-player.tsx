@@ -80,9 +80,9 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
   const totalCount = lessons.filter((l) => !l.isLocked).length // Or just lessons.length based on logic
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <div className="border-b-4 border-foreground bg-white">
+      <div className="border-b-4 border-foreground bg-background">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <h1 className="text-4xl font-black text-foreground">{courseTitle}</h1>
           <p className="text-foreground font-bold mt-2">
@@ -148,7 +148,7 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                           <Button onClick={handleStartQuiz} className="border-4 border-foreground bg-primary text-primary-foreground font-black">
                             Take Lesson Quiz
                           </Button>
-                          <Button onClick={() => setShowQuizPrompt(false)} className="border-4 border-foreground bg-white text-foreground font-black">
+                          <Button onClick={() => setShowQuizPrompt(false)} className="border-4 border-foreground bg-background text-foreground font-black">
                             Skip for now
                           </Button>
                         </div>
@@ -158,7 +158,7 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                 )}
 
                 {/* Lesson Description */}
-                <div className="border-4 border-foreground p-6 bg-white" style={{ boxShadow: '4px 4px 0px rgba(0,0,0,0.1)' }}>
+                <div className="border-4 border-foreground p-6 bg-background" style={{ boxShadow: '4px 4px 0px rgba(0,0,0,0.1)' }}>
                   <h3 className="font-black text-foreground mb-3">About this lesson</h3>
                   <p className="text-foreground leading-relaxed font-semibold">
                     {currentLesson.description || "Learn the fundamentals and best practices covered in this lesson. Complete the video and take the lesson quiz to reinforce your understanding and unlock the next lesson."}
@@ -170,9 +170,9 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
 
           {/* Sidebar - Playlist */}
           <div className="lg:col-span-1">
-            <div className="h-fit border-4 border-foreground bg-white" style={{ boxShadow: '6px 6px 0px rgba(0,0,0,0.15)' }}>
+            <div className="h-fit border-4 border-foreground bg-background" style={{ boxShadow: '6px 6px 0px rgba(0,0,0,0.15)' }}>
               <Tabs defaultValue="content" className="w-full">
-                <TabsList className="w-full border-b-4 border-foreground flex bg-white">
+                <TabsList className="w-full border-b-4 border-foreground flex bg-background">
                   <TabsTrigger value="content" className="flex-1 px-4 py-3 font-black text-foreground border-r-2 border-foreground text-center hover:bg-muted">
                     Content
                   </TabsTrigger>
@@ -189,7 +189,7 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                       disabled={lesson.isLocked}
                       className={`w-full text-left p-3 transition-colors font-semibold ${currentLessonId === lesson.id
                         ? 'border-3 border-foreground bg-primary text-primary-foreground'
-                        : 'border-2 border-foreground bg-white hover:bg-muted'
+                        : 'border-2 border-foreground bg-background hover:bg-muted'
                         } ${lesson.isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className="flex items-start gap-3">

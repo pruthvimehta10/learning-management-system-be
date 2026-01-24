@@ -43,7 +43,7 @@ export default function SignupPage() {
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || 
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
             window.location.origin,
         },
       })
@@ -95,8 +95,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-8">
-      <div className="w-full max-w-md border-4 border-foreground bg-white" style={{boxShadow: '8px 8px 0px rgba(0,0,0,0.15)'}}>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md border-4 border-foreground bg-background" style={{ boxShadow: '8px 8px 0px rgba(0,0,0,0.15)' }}>
         <div className="border-b-4 border-foreground bg-secondary p-6">
           <h1 className="text-3xl font-black text-secondary-foreground">Create Account</h1>
           <p className="text-sm font-bold text-secondary-foreground mt-2">Join RIIDL and start learning today</p>

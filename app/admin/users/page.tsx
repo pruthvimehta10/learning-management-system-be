@@ -38,7 +38,7 @@ export default async function AdminUsersPage() {
                 <Button variant="outline" className="border-2 border-foreground font-bold">Export CSV</Button>
             </div>
 
-            <div className="border-4 border-foreground rounded-lg overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+            <div className="border-4 border-foreground rounded-lg overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-background">
                 <Table>
                     <TableHeader className="bg-secondary/50 border-b-4 border-foreground">
                         <TableRow>

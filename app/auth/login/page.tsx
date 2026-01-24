@@ -66,8 +66,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 py-8">
-      <div className="w-full max-w-md border-4 border-foreground bg-white" style={{boxShadow: '8px 8px 0px rgba(0,0,0,0.15)'}}>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 py-8">
+      <div className="w-full max-w-md border-4 border-foreground bg-background" style={{ boxShadow: '8px 8px 0px rgba(0,0,0,0.15)' }}>
         <div className="border-b-4 border-foreground bg-accent p-6">
           <h1 className="text-3xl font-black text-accent-foreground text-center">Welcome Back</h1>
           <p className="text-center text-sm font-bold text-accent-foreground mt-2">

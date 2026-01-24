@@ -24,7 +24,7 @@ export default async function Home() {
   const courses = featuredCourses || []
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Featured Courses Section */}
@@ -59,7 +59,7 @@ export default async function Home() {
                       )}
                     </div>
 
-                    <div className="p-6 bg-white">
+                    <div className="p-6 bg-background">
                       <div className="flex items-start justify-between gap-2 mb-3">
                         <span className={`text-xs font-black border-2 border-foreground ${color.label} px-3 py-1`}>
                           {course.category}

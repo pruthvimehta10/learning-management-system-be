@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Search, Menu, BookOpen, BarChart3, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/themeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,7 @@ export function Navbar() {
 
   return (
     <nav
-      className="border-b-4 border-foreground bg-white sticky top-0 z-40"
+      className="border-b-4 border-foreground bg-background sticky top-0 z-40"
       style={{ boxShadow: "4px 4px 0px rgba(0,0,0,0.1)" }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -93,8 +94,9 @@ export function Navbar() {
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button
-                className="border-4 border-foreground bg-white text-foreground font-black hover:bg-muted"
+                className="border-4 border-foreground bg-secondary text-secondary-foreground font-black hover:bg-secondary/80"
                 asChild
               >
                 <Link href="/auth/login">Sign In</Link>
@@ -138,10 +140,10 @@ export function Navbar() {
                   </div>
 
                   <div className="space-y-2">
+                    <ThemeToggle />
                     <Button
-                      variant="outline"
                       asChild
-                      className="w-full bg-transparent"
+                      className=" flex items-center justify-center w-full border-4 border-foreground bg-secondary text-secondary-foreground font-black hover:bg-secondary/80"
                     >
                       <Link href="/auth/login">Sign In</Link>
                     </Button>
