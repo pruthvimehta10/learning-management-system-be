@@ -34,6 +34,23 @@ export default async function CoursePage({
         )
     }
 
+    // Verify labid from JWT matches course's lab_id
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    const userLabId = headersList.get('x-lab-id') || '';
+
+    // If course has a lab_id, verify it matches the user's lab_id
+    if (course.lab_id && course.lab_id !== userLabId) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white text-foreground">
+                <div className="text-center">
+                    <h1 className="text-4xl font-black mb-4">Access Denied</h1>
+                    <p className="text-xl">This course is not available for your lab.</p>
+                </div>
+            </div>
+        )
+    }
+
     // Process lessons to match CoursePlayer interface
     const lessons = (course.lessons || [])
         .sort((a: any, b: any) => a.order_index - b.order_index)

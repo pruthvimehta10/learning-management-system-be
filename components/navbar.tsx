@@ -92,11 +92,10 @@ export function Navbar() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
 
-            {/* Auth Buttons */}
+            {/* User Info - Auth handled externally */}
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <Button
-                className="border-4 border-foreground bg-secondary text-secondary-foreground font-black hover:bg-secondary/80"
+                className="border-4 border-foreground bg-white text-foreground font-black hover:bg-muted"
                 asChild
               >
                 <Link href="/auth/login">Sign In</Link>
@@ -140,10 +139,10 @@ export function Navbar() {
                   </div>
 
                   <div className="space-y-2">
-                    <ThemeToggle />
                     <Button
+                      variant="outline"
                       asChild
-                      className=" flex items-center justify-center w-full border-4 border-foreground bg-secondary text-secondary-foreground font-black hover:bg-secondary/80"
+                      className="w-full bg-transparent"
                     >
                       <Link href="/auth/login">Sign In</Link>
                     </Button>
