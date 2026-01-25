@@ -37,20 +37,20 @@ export function Navbar() {
 
   return (
     <nav
-      className="border-b-4 border-foreground bg-background sticky top-0 z-40"
-      style={{ boxShadow: "4px 4px 0px rgba(0,0,0,0.1)" }}
+      className="border-b border-border/10 bg-background/80 backdrop-blur-md sticky top-0 z-40"
+      style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-black text-xl text-foreground"
+            className="flex items-center gap-2 font-black text-xl text-foreground/80"
           >
-            <div className="h-8 w-8 border-4 border-foreground bg-primary flex items-center justify-center text-primary-foreground font-black text-xs">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-xs shadow-sm">
               R
             </div>
-            <span className="hidden sm:inline">RIIDL</span>
+            <span className="hidden sm:inline tracking-tighter">RIIDL</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -58,7 +58,7 @@ export function Navbar() {
             {/* Categories Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="bg-secondary text-secondary-foreground border-4 border-foreground font-black">
+                <Button variant="outline" className="border-border/20 text-foreground/80 font-bold px-5 rounded-xl h-10 shadow-sm hover:bg-muted">
                   Categories
                 </Button>
               </DropdownMenuTrigger>
@@ -85,7 +85,7 @@ export function Navbar() {
               <Input
                 type="search"
                 placeholder="Search courses..."
-                className="pl-10 pr-4 border-4 border-foreground focus:ring-4 focus:ring-offset-2 focus:ring-secondary"
+                className="pl-10 pr-4 bg-muted/30 border-border/10 rounded-xl h-10 focus:ring-2 focus:ring-primary/20 font-medium text-sm transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

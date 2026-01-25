@@ -3,84 +3,93 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
-  --primary: #ff006e;
-  --primary-foreground: #ffffff;
-  --secondary: #00d9ff;
-  --secondary-foreground: #000000;
-  --muted: #f0f0f0;
-  --muted-foreground: #666666;
-  --accent: #ffbe0b;
-  --accent-foreground: #000000;
-  --destructive: #ff006e;
-  --destructive-foreground: #ffffff;
-  --border: #000000;
-  --input: #ffffff;
-  --ring: #00d9ff;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0px;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: #ff006e;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0f0f0;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: #000000;
-  --sidebar-ring: #00d9ff;
+@layer base {
+  :root {
+    /* --- LIGHT MODE (Softer Colors) --- */
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(0 0% 25%);
+    /* Softer Black */
+
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(0 0% 25%);
+
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(0 0% 25%);
+
+    --primary: hsl(0 0% 20%);
+    /* Softer Primary */
+    --primary-foreground: hsl(0 0% 100%);
+
+    --secondary: hsl(0 0% 94%);
+    /* Softer Secondary */
+    --secondary-foreground: hsl(0 0% 25%);
+
+    --muted: hsl(0 0% 98%);
+    --muted-foreground: hsl(0 0% 45%);
+
+    --accent: hsl(0 0% 98%);
+    --accent-foreground: hsl(0 0% 25%);
+
+    --destructive: hsl(0 0% 20%);
+    --destructive-foreground: hsl(0 0% 100%);
+
+    --border: hsl(0 0% 96%);
+    /* Extremely subtle borders */
+    --input: hsl(0 0% 96%);
+    --ring: hsl(0 0% 25%);
+
+    --radius: 0.75rem;
+    /* Slightly rounder */
+  }
+
+  .dark {
+    /* --- DARK MODE (Softer White) --- */
+    --background: hsl(0 0% 5%);
+    /* Dark background */
+    --foreground: hsl(0 0% 85%);
+    /* Softer White */
+
+    --card: hsl(0 0% 100% / 0.04);
+    /* SEMI-TRANSPARENT LIFT */
+    --card-foreground: hsl(0 0% 85%);
+
+    --popover: hsl(0 0% 8%);
+    --popover-foreground: hsl(0 0% 85%);
+
+    --primary: hsl(0 0% 90%);
+    /* Softer Primary */
+    --primary-foreground: hsl(0 0% 5%);
+
+    --secondary: hsl(0 0% 15%);
+    /* Softer Secondary */
+    --secondary-foreground: hsl(0 0% 90%);
+
+    --muted: hsl(0 0% 15%);
+    --muted-foreground: hsl(0 0% 55%);
+
+    --accent: hsl(0 0% 15%);
+    --accent-foreground: hsl(0 0% 90%);
+
+    --destructive: hsl(0 0% 90%);
+    --destructive-foreground: hsl(0 0% 5%);
+
+    --border: hsl(0 0% 15%);
+    /* Subtle dark border */
+    --input: hsl(0 0% 15%);
+    --ring: hsl(0 0% 85%);
+  }
 }
 
-.dark {
-  /* Backgrounds - changed to dark */
-  --background: #1a1a1a;
-  --foreground: #ffffff;
-  --card: #1a1a1a;
-  --card-foreground: #ffffff;
-  --popover: #1a1a1a;
-  --popover-foreground: #ffffff;
+/* FORCE REMOVE BUTTON BORDERS */
+button {
+  border-width: 0px !important;
+  box-shadow: none !important;
+  /* Removes any shadow outlines */
+}
 
-  /* Button colors - KEEP THE SAME as light mode */
-  --primary: #ff006e;
-  --primary-foreground: #ffffff;
-  --secondary: #00d9ff;
-  --secondary-foreground: #1a1a1a;
-  --accent: #ffbe0b;
-  --accent-foreground: #1a1a1a;
-  --destructive: #ff006e;
-  --destructive-foreground: #ffffff;
-
-  /* Borders and inputs - changed to light for contrast */
-  --muted: #2a2a2a;
-  --muted-foreground: #999999;
-  --border: #ffffff;
-  --input: #2a2a2a;
-  --ring: #00d9ff;
-
-  /* Charts - keep the same */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-
-  /* Sidebar - dark background */
-  --sidebar: #1a1a1a;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ff006e;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2a2a2a;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #ffffff;
-  --sidebar-ring: #00d9ff;
+/* Optional: If you want to keep borders on inputs but not buttons */
+input {
+  border-width: 1px !important;
 }
 
 @theme inline {

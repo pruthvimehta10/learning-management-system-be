@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { ArrowRight, Play, BookOpen, Award, Users } from 'lucide-react'
+import { ArrowRight, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Navbar } from '@/components/navbar'
 import { createClient } from '@/lib/supabase/server'
 
@@ -10,24 +9,19 @@ export const dynamic = 'force-dynamic'
 export default async function Home() {
   const supabase = await createClient()
 
-  // Fetch featured courses
   const { data: featuredCourses, error } = await supabase
     .from('courses')
     .select('*')
     .eq('is_published', true)
-    .limit(4)
+    .limit(3)
 
-  if (error) {
-    console.error('Supabase Error fetching courses:', error)
-  }
-
+  if (error) console.error('Supabase Error:', error)
   const courses = featuredCourses || []
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Featured Courses Section */}
       <section id="courses" className="max-w-7xl mx-auto px-4 py-12 border-t-4 border-foreground">
         <div className="space-y-8">
           <div className="space-y-2">
@@ -37,61 +31,67 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {courses.length > 0 ? (
-              courses.map((course, idx) => {
-                const colors = [
-                  { bg: 'bg-primary', text: 'text-primary-foreground', label: 'bg-secondary' },
-                  { bg: 'bg-secondary', text: 'text-secondary-foreground', label: 'bg-accent' },
-                  { bg: 'bg-accent', text: 'text-accent-foreground', label: 'bg-primary' },
-                  { bg: 'bg-primary', text: 'text-primary-foreground', label: 'bg-secondary' },
-                ]
-                const color = colors[idx % 4]
-                return (
-                  <div key={course.id} className="border-4 border-foreground overflow-hidden transition-all" style={{ boxShadow: '6px 6px 0px rgba(0,0,0,0.15)' }}>
-                    {/* Course Image Placeholder */}
-                    <div className={`h-40 ${color.bg} flex items-center justify-center border-b-4 border-foreground`}>
-                      {course.thumbnail_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <BookOpen className={`h-12 w-12 ${color.text}`} />
-                      )}
+              courses.map((course) => (
+                <div
+                  key={course.id}
+                  className="group flex flex-col overflow-hidden rounded-3xl bg-card shadow-lg transition-all hover:shadow-xl hover:-translate-y-1"
+                >
+                  <div className="aspect-video w-full relative bg-muted/20 flex items-center justify-center">
+                    {course.thumbnail_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={course.thumbnail_url}
+                        alt={course.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <BookOpen className="h-12 w-12 text-muted-foreground/30" />
+                    )}
+
+                    <div className="absolute top-4 left-4">
+                      <span className="backdrop-blur-md bg-background/80 text-foreground border border-border/10 px-3 py-1 text-xs font-bold rounded-full shadow-sm">
+                        {course.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4">
+                      <h3 className="text-xl font-bold leading-tight mb-2 text-card-foreground line-clamp-1">
+                        {course.title}
+                      </h3>
+                      <p className="text-sm font-medium text-muted-foreground line-clamp-2">
+                        {course.description}
+                      </p>
                     </div>
 
-                    <div className="p-6 bg-background">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <span className={`text-xs font-black border-2 border-foreground ${color.label} px-3 py-1`}>
-                          {course.category}
-                        </span>
-                        <span className="text-xs font-black border-2 border-foreground bg-muted px-3 py-1">
-                          {course.level || 'Beginner'}
-                        </span>
-                      </div>
-                      <h3 className="font-black text-lg text-foreground leading-tight mb-2 line-clamp-2">{course.title}</h3>
-                      <p className="text-sm font-semibold text-foreground/70 line-clamp-2 mb-4">{course.description}</p>
-
-                      <div className="space-y-2 text-sm mb-4 border-t-2 border-foreground pt-3">
-                        <div className="flex justify-between font-semibold">
-                          <span>Rating</span>
-                          <span className="text-foreground">⭐ {course.rating || 'New'}</span>
+                    <div className="mt-auto space-y-4">
+                      <div className="flex items-center justify-between text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-yellow-500">⭐</span> {course.rating || 'New'}
                         </div>
-                        <div className="flex justify-between font-semibold">
-                          <span>Students</span>
-                          <span className="text-foreground">{course.total_students?.toLocaleString() || 0}</span>
+                        <div>
+                          {course.total_students?.toLocaleString() || 0} enrolled
                         </div>
                       </div>
 
-                      <Button asChild className={`w-full border-4 border-foreground ${color.bg} ${color.text} font-black`}>
-                        <Link href={`/courses/${course.id}`}>View Course</Link>
+                      <Button
+                        asChild
+                        className="w-full h-12 rounded-2xl text-sm font-bold bg-primary text-primary-foreground shadow-lg transition-all hover:bg-primary/95 group-hover:bg-primary/90 active:scale-[0.98]"
+                      >
+                        <Link href={`/courses/${course.id}`}>
+                          View Course <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
                       </Button>
                     </div>
                   </div>
-                )
-              })
+                </div>
+              ))
             ) : (
-              <div className="col-span-4 text-center py-12">
-                <p className="text-xl font-bold text-foreground">No courses found. Seed the database to see content.</p>
+              <div className="col-span-3 text-center py-12">
+                <p className="text-xl font-bold text-muted-foreground">No courses found.</p>
               </div>
             )}
           </div>

@@ -71,34 +71,34 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
             <div className="min-h-screen bg-background">
                 <Navbar />
                 <div className="max-w-3xl mx-auto px-4 py-12">
-                    <Card className="border-4 border-foreground" style={{ boxShadow: '8px 8px 0px rgba(0,0,0,0.15)' }}>
-                        <CardContent className="p-8 text-center space-y-6">
+                    <Card className="rounded-3xl shadow-xl overflow-hidden">
+                        <CardContent className="p-10 text-center space-y-8">
                             <div className="flex justify-center">
                                 {isPassed ? (
-                                    <CheckCircle className="h-24 w-24 text-green-600" />
+                                    <CheckCircle className="h-24 w-24 text-green-500/80" />
                                 ) : (
-                                    <XCircle className="h-24 w-24 text-destructive" />
+                                    <XCircle className="h-24 w-24 text-destructive/80" />
                                 )}
                             </div>
 
-                            <div>
-                                <h1 className="text-4xl font-black text-foreground mb-2">
+                            <div className="space-y-2">
+                                <h1 className="text-4xl font-black text-card-foreground">
                                     {isPassed ? 'Congratulations!' : 'Exam Failed'}
                                 </h1>
-                                <p className="text-xl text-foreground font-semibold">
+                                <p className="text-xl text-muted-foreground font-semibold">
                                     You scored {score}% on the Final Exam.
                                 </p>
                             </div>
 
                             {isPassed && (
-                                <div className="bg-secondary p-6 border-4 border-foreground my-6">
-                                    <p className="font-bold text-lg mb-2">Certificate of Completion</p>
-                                    <p className="text-sm">You have successfully completed {course.title}.</p>
+                                <div className="bg-secondary/30 p-8 rounded-2xl border border-secondary/50 my-6">
+                                    <p className="font-bold text-lg mb-1 text-card-foreground">Certificate of Completion</p>
+                                    <p className="text-sm text-muted-foreground">You have successfully completed {course.title}.</p>
                                 </div>
                             )}
 
-                            <div className="flex gap-4 justify-center">
-                                <Button asChild className="border-4 border-foreground bg-background text-foreground font-black hover:bg-muted">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                                <Button asChild variant="outline" className="h-12 px-8 rounded-2xl border-border/20 font-bold hover:bg-muted">
                                     <Link href={`/courses/${course.id}`}>Back to Course</Link>
                                 </Button>
                                 {!isPassed && (
@@ -107,7 +107,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                                         setCurrentQuestion(0)
                                         setSelectedAnswers([])
                                         setScore(0)
-                                    }} className="border-4 border-foreground bg-primary text-primary-foreground font-black">
+                                    }} className="h-12 px-8 rounded-2xl bg-primary text-primary-foreground font-black shadow-lg hover:bg-primary/90">
                                         Retake Exam
                                     </Button>
                                 )}
@@ -135,16 +135,16 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                     </Button>
                 </div>
 
-                <Card className="border-4 border-foreground" style={{ boxShadow: '8px 8px 0px rgba(0,0,0,0.15)' }}>
-                    <CardHeader className="border-b-4 border-foreground bg-secondary/30 p-6">
+                <Card className="rounded-3xl shadow-2xl overflow-hidden bg-card">
+                    <CardHeader className="border-b border-border/10 bg-muted/50 p-8">
                         <div className="flex justify-between items-center">
-                            <CardTitle className="text-2xl font-black">Final Exam: {course.title}</CardTitle>
-                            <span className="font-bold bg-background border-2 border-foreground px-3 py-1 text-sm">
+                            <CardTitle className="text-2xl font-black text-card-foreground">Final Exam: {course.title}</CardTitle>
+                            <span className="font-bold bg-background border border-border/20 rounded-full px-4 py-1.5 text-xs text-muted-foreground shadow-sm">
                                 Question {currentQuestion + 1}/{questions.length}
                             </span>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-8 space-y-8">
+                    <CardContent className="p-10 space-y-10">
                         {/* Progress Bar */}
                         <div className="h-4 w-full bg-secondary border-2 border-foreground rounded-full overflow-hidden">
                             <div
@@ -176,12 +176,12 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                             </RadioGroup>
                         </div>
 
-                        <div className="flex justify-between pt-4 border-t-2 border-slate-200">
+                        <div className="flex justify-between pt-8 border-t border-border/10">
                             <Button
                                 onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
                                 disabled={currentQuestion === 0}
                                 variant="outline"
-                                className="border-4 border-foreground font-bold"
+                                className="h-12 px-8 rounded-2xl border-border/20 font-bold hover:bg-muted text-muted-foreground"
                             >
                                 Previous
                             </Button>
@@ -190,7 +190,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                                 <Button
                                     onClick={handleSubmit}
                                     disabled={selectedAnswers.length !== questions.length || selectedAnswers.includes(undefined as any)}
-                                    className="border-4 border-foreground bg-green-600 hover:bg-green-700 text-white font-black px-8"
+                                    className="h-12 px-10 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black shadow-lg shadow-green-500/10 active:scale-95 transition-all"
                                 >
                                     Submit Exam
                                 </Button>
@@ -198,7 +198,7 @@ export function ExamInterface({ course, questions }: ExamInterfaceProps) {
                                 <Button
                                     onClick={() => setCurrentQuestion(currentQuestion + 1)}
                                     disabled={selectedAnswers[currentQuestion] === undefined}
-                                    className="border-4 border-foreground bg-primary text-primary-foreground font-black px-8"
+                                    className="h-12 px-10 rounded-2xl bg-primary text-primary-foreground font-black shadow-lg shadow-primary/10 hover:bg-primary/90 active:scale-95 transition-all"
                                 >
                                     Next Question
                                 </Button>
