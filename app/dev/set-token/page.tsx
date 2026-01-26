@@ -8,6 +8,23 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function SetTokenPage() {
+    // Block access in production for security
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ALLOW_DEV_TOOLS !== 'true') {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center p-8">
+                <div className="text-center max-w-md">
+                    <h1 className="text-4xl font-black text-foreground mb-4">🔒 Access Denied</h1>
+                    <p className="text-lg font-semibold text-foreground/70 mb-4">
+                        This development tool is not available in production.
+                    </p>
+                    <p className="text-sm text-foreground/50">
+                        If you need to access this page, set NEXT_PUBLIC_ALLOW_DEV_TOOLS=true in your environment variables.
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     const [token, setToken] = useState('')
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
