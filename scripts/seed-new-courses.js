@@ -28,7 +28,6 @@ async function seed() {
         {
             title: 'Data Science & Analysis 101',
             description: 'Learn the core principles of data science, including statistical analysis, data visualization, and predictive modeling using modern tools.',
-            category: 'Data Science',
             instructor_id: instructorId,
             thumbnail_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
             level: 'Beginner',
@@ -38,7 +37,6 @@ async function seed() {
         {
             title: 'Business Strategy & Growth',
             description: 'Master the art of business scaling, competitive analysis, and strategic decision-making to drive organizational success.',
-            category: 'Business',
             instructor_id: instructorId,
             thumbnail_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
             level: 'Intermediate',

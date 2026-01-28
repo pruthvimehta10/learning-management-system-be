@@ -149,7 +149,7 @@ CREATE TABLE quiz_questions (
   is_final_exam BOOLEAN DEFAULT FALSE,
   question_text TEXT NOT NULL,
   correct_answer_index INT NOT NULL,
-  order_index INT NOT NULL,
+  question_order INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -160,7 +160,7 @@ CREATE TABLE quiz_questions (
 - `is_final_exam`: Boolean flag for final exam questions
 - `question_text`: The quiz question
 - `correct_answer_index`: Index of correct answer (0-3)
-- `order_index`: Question sequence
+- `question_order`: Question sequence
 
 ---
 
@@ -172,7 +172,7 @@ CREATE TABLE quiz_options (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   question_id UUID NOT NULL REFERENCES quiz_questions(id) ON DELETE CASCADE,
   option_text TEXT NOT NULL,
-  order_index INT NOT NULL
+  option_order INT NOT NULL
 );
 ```
 
@@ -180,7 +180,7 @@ CREATE TABLE quiz_options (
 - `id`: Option ID
 - `question_id`: Parent question
 - `option_text`: Answer option text
-- `order_index`: Display sequence
+- `option_order`: Display sequence
 
 ---
 

@@ -83,6 +83,8 @@ export function LessonQuizModal({
     }
   }
 
+  if (!question && !submitted) return null
+
   if (!submitted) {
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>

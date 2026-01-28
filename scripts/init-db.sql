@@ -12,22 +12,11 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Categories table
-CREATE TABLE IF NOT EXISTS categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT UNIQUE NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  description TEXT,
-  icon TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
 
--- Courses table
 CREATE TABLE IF NOT EXISTS courses (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title TEXT NOT NULL,
   description TEXT,
-  category TEXT NOT NULL,
   instructor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   thumbnail_url TEXT,
   level TEXT CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
@@ -44,7 +33,7 @@ CREATE TABLE IF NOT EXISTS lessons (
   description TEXT,
   video_url TEXT,
   video_duration_seconds INTEGER,
-  lesson_order INTEGER NOT NULL,
+  order_index INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -163,7 +152,6 @@ CREATE POLICY "Users can insert quiz attempts" ON quiz_attempts
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Create indexes for performance
-CREATE INDEX idx_courses_category ON courses(category);
 CREATE INDEX idx_courses_instructor_id ON courses(instructor_id);
 CREATE INDEX idx_lessons_course_id ON lessons(course_id);
 CREATE INDEX idx_enrollments_user_id ON enrollments(user_id);

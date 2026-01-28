@@ -23,7 +23,6 @@ export default function NewCoursePage() {
         const formData = new FormData(event.currentTarget)
         const title = formData.get('title') as string
         const description = formData.get('description') as string
-        const category = formData.get('category') as string
         const level = formData.get('level') as string
 
         const { data: { user } } = await supabase.auth.getUser()
@@ -37,7 +36,6 @@ export default function NewCoursePage() {
         const { error } = await supabase.from('courses').insert({
             title,
             description,
-            category,
             level,
             instructor_id: user.id,
             is_published: true, // Default to true for MVP so it shows on homepage
@@ -80,35 +78,18 @@ export default function NewCoursePage() {
                     <Textarea id="description" name="description" placeholder="Brief description of the course..." className="border-2 border-foreground min-h-[100px]" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="category" className="font-bold">Category</Label>
-                        <Select name="category" required>
-                            <SelectTrigger className="border-2 border-foreground">
-                                <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Web Dev">Web Dev</SelectItem>
-                                <SelectItem value="Data Science">Data Science</SelectItem>
-                                <SelectItem value="Business">Business</SelectItem>
-                                <SelectItem value="Design">Design</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="level" className="font-bold">Level</Label>
-                        <Select name="level" required defaultValue="Beginner">
-                            <SelectTrigger className="border-2 border-foreground">
-                                <SelectValue placeholder="Select level" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Beginner">Beginner</SelectItem>
-                                <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                <SelectItem value="Advanced">Advanced</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <div className="space-y-2">
+                    <Label htmlFor="level" className="font-bold">Level</Label>
+                    <Select name="level" required defaultValue="Beginner">
+                        <SelectTrigger className="border-2 border-foreground">
+                            <SelectValue placeholder="Select level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Beginner">Beginner</SelectItem>
+                            <SelectItem value="Intermediate">Intermediate</SelectItem>
+                            <SelectItem value="Advanced">Advanced</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-4">

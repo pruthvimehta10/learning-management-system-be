@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,6 +9,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function SetTokenPage() {
+    const router = useRouter()
+    // ... rest of the component
     // Block access in production for security
     if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ALLOW_DEV_TOOLS !== 'true') {
         return (
@@ -26,6 +29,7 @@ export default function SetTokenPage() {
     }
 
     const [token, setToken] = useState('')
+    const [currentRole, setCurrentRole] = useState<string | null>(null)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
     const handleSetToken = () => {
@@ -37,7 +41,14 @@ export default function SetTokenPage() {
         try {
             // Set the cookie
             document.cookie = `auth_token=${token.trim()}; path=/; max-age=86400`
-            setMessage({ type: 'success', text: 'Token set successfully! You can now navigate to protected pages.' })
+            setMessage({ type: 'success', text: 'Token set successfully! Redirecting...' })
+
+            // Redirect based on role
+            setTimeout(() => {
+                const target = (currentRole === 'admin' || currentRole === 'instructor') ? '/admin' : '/'
+                console.log('Redirecting to:', target)
+                router.push(target)
+            }, 500)
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to set token' })
         }
@@ -61,6 +72,7 @@ export default function SetTokenPage() {
 
             const data = await response.json()
             setToken(data.token)
+            setCurrentRole(role)
             setMessage({ type: 'success', text: `Generated ${role} token. Click "Set Token" to apply.` })
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to generate token. Make sure dev mode is enabled.' })

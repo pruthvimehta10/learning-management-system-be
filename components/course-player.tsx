@@ -168,94 +168,94 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
               </div>
             )}
           </div>
-{/* Sidebar - Playlist */}
-<div className="lg:col-span-1">
-  <div className="h-fit rounded-3xl bg-card shadow-xl overflow-hidden border border-border/5">
-    <Tabs defaultValue="content" className="w-full">
-      {/* ADDED: border-b border-border/10 creates the thin line below the buttons */}
-      <TabsList className="w-full border-b border-border/10 flex bg-muted/20 p-2 h-auto gap-2">
-        <TabsTrigger 
-          value="content" 
-          className="flex-1 py-3 font-bold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-xl transition-all"
-        >
-          Content
-        </TabsTrigger>
-        <TabsTrigger 
-          value="notes" 
-          className="flex-1 py-3 font-bold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-xl transition-all"
-        >
-          Notes
-        </TabsTrigger>
-      </TabsList>
+          {/* Sidebar - Playlist */}
+          <div className="lg:col-span-1">
+            <div className="h-fit rounded-3xl bg-card shadow-xl overflow-hidden border border-border/5">
+              <Tabs defaultValue="content" className="w-full">
+                {/* ADDED: border-b border-border/10 creates the thin line below the buttons */}
+                <TabsList className="w-full border-b border-border/10 flex bg-muted/20 p-2 h-auto gap-2">
+                  <TabsTrigger
+                    value="content"
+                    className="flex-1 py-3 font-bold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-xl transition-all"
+                  >
+                    Content
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="notes"
+                    className="flex-1 py-3 font-bold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-xl transition-all"
+                  >
+                    Notes
+                  </TabsTrigger>
+                </TabsList>
 
-      <TabsContent value="content" className="p-4 space-y-2 max-h-[600px] overflow-y-auto">
-        {lessons.map((lesson, index) => (
-          <button
-            key={lesson.id}
-            onClick={() => handleLessonClick(lesson.id)}
-            disabled={lesson.isLocked}
-            className={`w-full text-left p-4 transition-all font-semibold rounded-2xl group/item mb-2 ${currentLessonId === lesson.id
-              ? 'bg-primary/10 text-primary shadow-sm border border-primary/20' // Active state clean up
-              : 'bg-transparent hover:bg-muted/50 text-muted-foreground'
-              } ${lesson.isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-1">
-                {lesson.completed ? (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : lesson.isLocked ? (
-                  <Lock className="h-5 w-5 opacity-50" />
-                ) : (
-                  <Play className="h-5 w-5" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm truncate">
-                  {index + 1}. {lesson.title}
-                </p>
-                <p className="text-xs mt-1 font-medium opacity-70">
-                  {lesson.duration} min
-                </p>
-              </div>
-            </div>
-          </button>
-        ))}
+                <TabsContent value="content" className="p-4 space-y-2 max-h-[600px] overflow-y-auto">
+                  {lessons.map((lesson, index) => (
+                    <button
+                      key={lesson.id}
+                      onClick={() => handleLessonClick(lesson.id)}
+                      disabled={lesson.isLocked}
+                      className={`w-full text-left p-4 transition-all font-semibold rounded-2xl group/item mb-2 ${currentLessonId === lesson.id
+                        ? 'bg-primary/10 text-primary shadow-sm border border-primary/20' // Active state clean up
+                        : 'bg-transparent hover:bg-muted/50 text-muted-foreground'
+                        } ${lesson.isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-1">
+                          {lesson.completed ? (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          ) : lesson.isLocked ? (
+                            <Lock className="h-5 w-5 opacity-50" />
+                          ) : (
+                            <Play className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm truncate">
+                            {index + 1}. {lesson.title}
+                          </p>
+                          <p className="text-xs mt-1 font-medium opacity-70">
+                            {lesson.duration} min
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
 
-        {/* Final Exam Link - Cleaned up borders */}
-        <a
-          href={`${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}/exam`}
-          className="block w-full text-left p-3 mt-4 border border-border/10 bg-secondary/30 hover:bg-secondary/60 rounded-2xl transition-colors cursor-pointer"
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-1">
-              <Badge className="bg-primary text-primary-foreground">Ex</Badge>
-            </div>
-            <div className="flex-1 min-w-0 hover:text-white transition-all">
-              <p className="font-bold text-sm text-foreground">Final Exam</p>
-              <p className="text-xs mt-1 font-medium text-muted-foreground">Test your knowledge</p>
+                  {/* Final Exam Link - Cleaned up borders */}
+                  <a
+                    href={`${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}/exam`}
+                    className="block w-full text-left p-3 mt-4 border border-border/10 bg-secondary/30 hover:bg-secondary/60 rounded-2xl transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Badge className="bg-primary text-primary-foreground">Ex</Badge>
+                      </div>
+                      <div className="flex-1 min-w-0 hover:text-white transition-all">
+                        <p className="font-bold text-sm text-foreground">Final Exam</p>
+                        <p className="text-xs mt-1 font-medium text-muted-foreground">Test your knowledge</p>
+                      </div>
+                    </div>
+                  </a>
+                </TabsContent>
+
+                <TabsContent value="notes" className="p-4 space-y-3">
+                  {/* ADD NOTE BUTTON: Clean style + White Text on Hover */}
+                  <Button className="w-full border border-border/20 bg-accent text-accent-foreground font-bold hover:bg-primary hover:text-white transition-all">
+                    + Add Note
+                  </Button>
+                  <div className="text-center text-sm font-medium py-8 text-muted-foreground">
+                    No notes yet. Add notes to help you remember key concepts.
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
-        </a>
-      </TabsContent>
-
-      <TabsContent value="notes" className="p-4 space-y-3">
-        {/* ADD NOTE BUTTON: Clean style + White Text on Hover */}
-        <Button className="w-full border border-border/20 bg-accent text-accent-foreground font-bold hover:bg-primary hover:text-white transition-all">
-          + Add Note
-        </Button>
-        <div className="text-center text-sm font-medium py-8 text-muted-foreground">
-          No notes yet. Add notes to help you remember key concepts.
         </div>
-      </TabsContent>
-    </Tabs>
-  </div>
-</div>
-</div>
-</div>
+      </div>
 
 
       {/* Quiz Modal */}
-      {currentLesson && currentLesson.questions && (
+      {currentLesson && currentLesson.questions && currentLesson.questions.length > 0 && (
         <LessonQuizModal
           isOpen={isQuizOpen}
           lessonTitle={currentLesson.title}

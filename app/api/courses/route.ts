@@ -7,21 +7,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const category = searchParams.get('category')
 
-    let query = supabase
+    const query = supabase
       .from('courses')
       .select('*')
       .eq('is_published', true)
-
-    if (category) {
-      // Handle mapping or normalization if needed
-      // Normalizing slugs (e.g. 'web-dev' -> 'Web Dev')
-      const normalizedCategory = category
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-
-      query = query.ilike('category', normalizedCategory)
-    }
 
     const { data: courses, error } = await query
       .order('created_at', { ascending: false })

@@ -39,7 +39,7 @@ export default async function ExamPage({
         question_text: q.question_text,
         correct_answer: q.correct_answer_index,
         options: (q.quiz_options || [])
-            .sort((a: any, b: any) => a.order_index - b.order_index)
+            .sort((a: any, b: any) => a.option_order - b.option_order)
             .map((o: any) => o.option_text)
     }))
 

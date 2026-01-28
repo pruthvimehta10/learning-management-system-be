@@ -6,32 +6,13 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-interface PageProps {
-    searchParams: Promise<{ category?: string }>
-}
-
-export default async function CoursesPage({ searchParams }: PageProps) {
-    const params = await searchParams
-    const categorySlug = params.category
+export default async function CoursesPage() {
     const supabase = await createClient()
-
-    // 1. Normalize the category name for display and querying
-    const normalizedCategory = categorySlug
-        ? categorySlug
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
-        : 'All Courses'
-
     // 2. Build the query
-    let query = supabase
+    const query = supabase
         .from('courses')
         .select('*')
         .eq('is_published', true)
-
-    if (categorySlug) {
-        query = query.ilike('category', normalizedCategory)
-    }
 
     const { data: courses, error } = await query.order('created_at', { ascending: false })
 
@@ -46,13 +27,10 @@ export default async function CoursesPage({ searchParams }: PageProps) {
                     {/* Header */}
                     <div className="space-y-4">
                         <h1 className="text-4xl sm:text-6xl font-black text-foreground tracking-tight">
-                            {normalizedCategory}
+                            All Courses
                         </h1>
                         <p className="text-lg font-medium text-muted-foreground max-w-2xl">
-                            {categorySlug
-                                ? `Explore our world-class ${normalizedCategory} curriculum designed to take you from beginner to pro.`
-                                : "Browse our complete catalog of professional courses and start your learning journey today."
-                            }
+                            Browse our complete catalog of professional courses and start your learning journey today.
                         </p>
                     </div>
 
@@ -75,11 +53,6 @@ export default async function CoursesPage({ searchParams }: PageProps) {
                                             <BookOpen className="h-12 w-12 text-muted-foreground/30" />
                                         )}
 
-                                        <div className="absolute top-4 left-4">
-                                            <span className="backdrop-blur-md bg-background/80 text-foreground border border-border/10 px-3 py-1 text-xs font-bold rounded-full shadow-sm">
-                                                {course.category}
-                                            </span>
-                                        </div>
                                     </div>
 
                                     <div className="flex flex-1 flex-col p-8">
@@ -121,7 +94,7 @@ export default async function CoursesPage({ searchParams }: PageProps) {
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-bold text-foreground">No courses found</h3>
-                                    <p className="text-muted-foreground mt-2 font-medium">We're still developing this category. Check back soon!</p>
+                                    <p className="text-muted-foreground mt-2 font-medium">We're still developing content. Check back soon!</p>
                                 </div>
                                 <Button asChild variant="outline" className="rounded-xl px-8 h-12">
                                     <Link href="/courses">View All Courses</Link>

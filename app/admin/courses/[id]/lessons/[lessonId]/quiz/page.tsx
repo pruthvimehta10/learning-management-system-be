@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 interface Question {
     id: string
     question_text: string
-    order_index: number
+    question_order: number
     quiz_options: { id: string, option_text: string, is_correct: boolean }[]
 }
 
@@ -49,7 +49,7 @@ export default function ManageQuizPage({ params }: { params: Promise<{ id: strin
                 quiz_options (*)
             `)
             .eq('lesson_id', lessonId)
-            .order('order_index')
+            .order('question_order')
 
         if (data) {
             setQuestions(data as any)
@@ -63,7 +63,7 @@ export default function ManageQuizPage({ params }: { params: Promise<{ id: strin
 
         // 1. Get next order
         const nextOrder = questions.length > 0
-            ? Math.max(...questions.map(q => q.order_index)) + 1
+            ? Math.max(...questions.map(q => q.question_order)) + 1
             : 0
 
         // 2. Insert Question
@@ -73,7 +73,7 @@ export default function ManageQuizPage({ params }: { params: Promise<{ id: strin
                 lesson_id: lessonId,
                 course_id: courseId,
                 question_text: questionText,
-                order_index: nextOrder, // consistent naming
+                question_order: nextOrder, // consistent naming
                 question_type: 'multiple_choice'
             })
             .select()
@@ -90,7 +90,7 @@ export default function ManageQuizPage({ params }: { params: Promise<{ id: strin
             question_id: qData.id,
             option_text: opt.text,
             is_correct: opt.correct,
-            order_index: idx
+            option_order: idx
         }))
 
         const { error: oError } = await supabase

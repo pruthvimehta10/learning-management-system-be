@@ -10,19 +10,16 @@ export default async function CoursePage({
     const { id } = await params
     const supabase = await createClient()
 
-    // Fetch course with hierarchical structure
+    // Fetch course with lessons directly
     const { data: course } = await supabase
         .from('courses')
         .select(`
             *,
-            modules (
+            lessons (
                 *,
-                topics (
+                quiz_questions (
                     *,
-                    lessons (
-                        *,
-                        quiz_questions (*)
-                    )
+                    quiz_options (*)
                 )
             )
         `)
@@ -57,46 +54,26 @@ export default async function CoursePage({
         )
     }
 
-    // Flatten the hierarchical structure into a linear list of lessons
-    const rawLessons: any[] = []
-    if (course.modules) {
-        course.modules
-            .sort((a: any, b: any) => a.order_index - b.order_index)
-            .forEach((module: any) => {
-                if (module.topics) {
-                    module.topics
-                        .sort((a: any, b: any) => a.order_index - b.order_index)
-                        .forEach((topic: any) => {
-                            if (topic.lessons) {
-                                topic.lessons
-                                    .sort((a: any, b: any) => a.order_index - b.order_index)
-                                    .forEach((lesson: any) => {
-                                        rawLessons.push({
-                                            ...lesson,
-                                            moduleTitle: module.title,
-                                            topicTitle: topic.title
-                                        })
-                                    })
-                            }
-                        })
-                }
-            })
-    }
-
     // Process lessons to match CoursePlayer interface
-    const lessons = rawLessons.map((lesson: any, index: number) => ({
-        ...lesson,
-        videoUrl: lesson.video_url,
-        duration: lesson.duration || 10,
-        completed: false, // In a real app, fetch 'lesson_completions'
-        isLocked: index !== 0, // Unlock first lesson only for demo
-        questions: (lesson.quiz_questions || []).map((q: any) => ({
-            id: q.id,
-            question_text: q.question_text,
-            correct_answer: q.correct_answer_index,
-            options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] // Fallback: Need quiz_options table join
+    const lessons = (course.lessons || [])
+        .sort((a: any, b: any) => a.order_index - b.order_index)
+        .map((lesson: any, index: number) => ({
+            ...lesson,
+            videoUrl: lesson.video_url,
+            duration: lesson.duration || 10,
+            completed: false, // In a real app, fetch 'lesson_completions'
+            isLocked: index !== 0, // Unlock first lesson only for demo
+            questions: (lesson.quiz_questions || [])
+                .sort((a: any, b: any) => a.question_order - b.question_order)
+                .map((q: any) => ({
+                    id: q.id,
+                    question: q.question_text,
+                    correctAnswer: q.correct_answer_index,
+                    options: (q.quiz_options || [])
+                        .sort((a: any, b: any) => a.option_order - b.option_order)
+                        .map((o: any) => o.option_text)
+                }))
         }))
-    }))
 
     // Note: To get options, we need a deeper join or a second query.
     // Supabase recursive query for options:

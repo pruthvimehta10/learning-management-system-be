@@ -14,23 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-const categories = [
-  {
-    name: "Web Development",
-    icon: <BookOpen className="h-4 w-4" />,
-    href: "/courses?category=web-dev",
-  },
-  {
-    name: "Data Science",
-    icon: <BarChart3 className="h-4 w-4" />,
-    href: "/courses?category=data-science",
-  },
-  {
-    name: "Business",
-    icon: <Briefcase className="h-4 w-4" />,
-    href: "/courses?category=business",
-  },
-];
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,30 +38,6 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            {/* Categories Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-border/20 text-foreground/80 font-bold px-5 rounded-xl h-10 shadow-sm hover:bg-muted">
-                  Categories
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-56"
-              >
-                {categories.map((category) => (
-                  <DropdownMenuItem key={category.name} asChild>
-                    <Link
-                      href={category.href}
-                      className="flex items-center gap-2 cursor-pointer py-2"
-                    >
-                      {category.icon}
-                      {category.name}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
 
             {/* Dashboard Link */}
             <Link
@@ -117,19 +76,6 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-80">
                 <div className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold">Categories</h3>
-                    {categories.map((category) => (
-                      <Link
-                        key={category.name}
-                        href={category.href}
-                        className="flex items-center gap-2 p-2 rounded-md hover:bg-secondary text-foreground"
-                      >
-                        {category.icon}
-                        {category.name}
-                      </Link>
-                    ))}
-                  </div>
 
                   <div className="space-y-2">
                     <h3 className="font-semibold">Search</h3>

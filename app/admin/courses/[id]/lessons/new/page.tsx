@@ -44,7 +44,7 @@ export default function NewLessonPage({ params }: { params: Promise<{ id: string
             description,
             video_url,
             video_duration_seconds: duration * 60, // convert minutes to seconds
-            lesson_order: nextOrder,
+            order_index: nextOrder,
         })
 
         if (error && error.code === '42703') {

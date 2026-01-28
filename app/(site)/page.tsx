@@ -49,12 +49,6 @@ export default async function Home() {
                     ) : (
                       <BookOpen className="h-12 w-12 text-muted-foreground/30" />
                     )}
-
-                    <div className="absolute top-4 left-4">
-                      <span className="backdrop-blur-md bg-background/80 text-foreground border border-border/10 px-3 py-1 text-xs font-bold rounded-full shadow-sm">
-                        {course.category}
-                      </span>
-                    </div>
                   </div>
 
                   <div className="flex flex-1 flex-col p-6">
@@ -88,15 +82,15 @@ export default async function Home() {
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-12">
-                <p className="text-xl font-bold text-muted-foreground">No courses found.</p>
-              </div>
-            )}
+          ))
+          ) : (
+          <div className="col-span-3 text-center py-12">
+            <p className="text-xl font-bold text-muted-foreground">No courses found.</p>
           </div>
+            )}
         </div>
-      </section>
     </div>
+      </section >
+    </div >
   )
 }

@@ -13,7 +13,6 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Plus, Save, FileQuestion, Edit, Trash2, Loader2, Video } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LessonEditDialog } from '@/components/admin/lesson-edit-dialog'
-import { ModuleManager } from '@/components/admin/module-manager'
 
 interface Lesson {
     id: string
@@ -22,7 +21,7 @@ interface Lesson {
     video_url?: string
     video_duration_seconds?: number
     order_index: number
-    is_published: boolean
+    created_at?: string
     quiz_questions: { count: number }[]
 }
 
@@ -30,7 +29,6 @@ interface Course {
     id: string
     title: string
     description: string
-    category: string
     level: string
     lessons: Lesson[]
 }
@@ -49,7 +47,6 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     // Form state
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [category, setCategory] = useState('')
     const [level, setLevel] = useState('')
 
     useEffect(() => {
@@ -57,55 +54,71 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     }, [courseId])
 
     async function fetchCourse() {
-        const { data } = await supabase
-            .from('courses')
-            .select(`
-                *,
-                lessons (
-                    id,
-                    title,
-                    description,
-                    video_url,
-                    video_duration_seconds,
-                    order_index,
-                    is_published,
-                    quiz_questions (count)
-                )
-            `)
-            .eq('id', courseId)
-            .single()
+        console.log('Fetching course data for:', courseId)
+        try {
+            const { data, error } = await supabase
+                .from('courses')
+                .select(`
+                    *,
+                    lessons (
+                        id,
+                        title,
+                        description,
+                        video_url,
+                        video_duration_seconds,
+                        order_index,
+                        quiz_questions (count)
+                    )
+                `)
+                .eq('id', courseId)
+                .single()
 
-        if (data) {
-            setCourse(data as Course)
-            setTitle(data.title)
-            setDescription(data.description || '')
-            setCategory(data.category || '')
-            setLevel(data.level || '')
+            if (error) {
+                console.error('Fetch error:', error)
+                throw error
+            }
 
-            const sortedLessons = ((data.lessons || []) as Lesson[]).sort((a, b) => a.order_index - b.order_index)
-            setLessons(sortedLessons)
+            if (data) {
+                setCourse(data as Course)
+                setTitle(data.title)
+                setDescription(data.description || '')
+                setLevel(data.level || '')
+
+                const sortedLessons = ((data.lessons || []) as Lesson[]).sort((a, b) => a.order_index - b.order_index)
+                setLessons(sortedLessons)
+                console.log('Course data loaded successfully')
+            }
+        } catch (err: any) {
+            console.error('Failed to fetch course:', err)
+            alert('Error loading course data. Please refresh the page.')
         }
     }
 
     async function handleSaveCourse() {
         setLoading(true)
-        const { error } = await supabase
-            .from('courses')
-            .update({
-                title,
-                description,
-                category,
-                level,
-            })
-            .eq('id', courseId)
+        try {
+            const { error } = await supabase
+                .from('courses')
+                .update({
+                    title,
+                    description,
+                    level,
+                })
+                .eq('id', courseId)
 
-        setLoading(false)
-
-        if (error) {
-            alert('Error saving course: ' + error.message)
-        } else {
-            alert('Course saved successfully!')
-            router.refresh()
+            if (error) {
+                console.error('Update error:', error)
+                alert('Error saving course: ' + error.message)
+            } else {
+                console.log('Course saved successfully, refreshing data...')
+                await fetchCourse()
+                alert('Course saved successfully!')
+            }
+        } catch (err: any) {
+            console.error('Save error:', err)
+            alert('An unexpected error occurred while saving: ' + err.message)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -284,10 +297,6 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                         </CardContent>
                     </Card>
 
-                    {/* Module Management */}
-                    <div className="pt-6 border-t-8 border-foreground border-dashed">
-                        <ModuleManager courseId={courseId} />
-                    </div>
                 </div>
 
                 {/* Sidebar Settings */}
@@ -297,14 +306,6 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                             <CardTitle className="font-black">Settings</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label className="font-bold">Category</Label>
-                                <Input
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    className="border-2 border-foreground"
-                                />
-                            </div>
                             <div className="space-y-2">
                                 <Label className="font-bold">Level</Label>
                                 <Input
