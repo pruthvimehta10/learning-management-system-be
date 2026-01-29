@@ -72,8 +72,8 @@ export default async function CoursePage({
                     options: (q.quiz_options || [])
                         .sort((a: any, b: any) => a.option_order - b.option_order)
                         .map((o: any) => o.option_text)
-                }))
-        }))
+                })),
+        }));
 
     // Note: To get options, we need a deeper join or a second query.
     // Supabase recursive query for options:
