@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { getJWTFromClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -43,8 +44,13 @@ export default function AdminCoursesPage() {
         if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) return
 
         try {
+            const token = getJWTFromClient()
             const res = await fetch(`/api/admin/courses/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
             })
 
             const result = await res.json()
@@ -83,7 +89,7 @@ export default function AdminCoursesPage() {
                             <Plus className="mr-2 h-4 w-4 stroke-[3px]" /> Add Course
                         </Link>
                     </Button>
-                    <Button asChild className="border-4 border-foreground bg-secondary text-foreground font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+                    <Button asChild className="border-4 border-foreground bg-secondary text-foreground font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:text-white dark:bg-secondary dark:text-foreground dark:hover:text-white transition-all">
                         <Link href="/admin/topics">
                             <Plus className="mr-2 h-4 w-4 stroke-[3px]" /> Manage Topics
                         </Link>
@@ -117,7 +123,7 @@ export default function AdminCoursesPage() {
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleDeleteCourse(course.id)}
-                                                className="h-8 w-8 border-2 border-transparent text-destructive hover:border-destructive hover:bg-destructive hover:text-white"
+                                                className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive dark:text-destructive dark:hover:bg-destructive dark:hover:text-white"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

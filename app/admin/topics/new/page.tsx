@@ -382,10 +382,9 @@ export default function AddTopicPage() {
                       </div>
                       <Button
                         type="button"
-                        variant="ghost"
                         size="sm"
                         onClick={() => removeQuiz(quiz.id)}
-                        className="h-6 w-6 p-0 text-destructive hover:text-white hover:bg-destructive"
+                        className="h-6 w-6 p-0 text-white bg-destructive hover:bg-destructive/90 dark:text-white dark:bg-destructive dark:hover:bg-destructive/80"
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { headers } from 'next/headers'
+import { withAuthFlow, AuthenticatedRequest } from '@/lib/auth-middleware'
 
 // Initialize Supabase client with SERVICE_ROLE for admin writes
 const supabaseAdmin = createClient(
@@ -14,15 +14,8 @@ const supabaseAdmin = createClient(
   }
 )
 
-export async function POST(req: NextRequest) {
+async function handler(req: AuthenticatedRequest) {
   try {
-    // Verify admin/instructor role via headers set by middleware
-    const headersList = await headers()
-    const role = headersList.get('x-user-role')
-    if (!role || (role !== 'admin' && role !== 'instructor')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
     const { topicId, quizTitle } = await req.json()
 
     if (!topicId || !quizTitle?.trim()) {
@@ -75,3 +68,6 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+
+export const POST = (req: AuthenticatedRequest) => 
+  withAuthFlow('admin', handler)(req)

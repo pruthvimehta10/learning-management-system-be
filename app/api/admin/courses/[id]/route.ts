@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { withAuthFlow, AuthenticatedRequest } from '@/lib/auth-middleware'
 
-export async function DELETE(
-  request: Request,
+async function handler(
+  request: AuthenticatedRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -66,3 +67,6 @@ export async function DELETE(
     return Response.json({ error: error.message }, { status: 500 })
   }
 }
+
+export const DELETE = (req: AuthenticatedRequest, params: any) => 
+  withAuthFlow('admin', (r) => handler(r, params))(req)

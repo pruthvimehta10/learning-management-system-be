@@ -187,10 +187,9 @@ export function QuizEditDialog({ topic, open, onOpenChange, onSuccess }: QuizEdi
                                                 {i + 1}. {q.question_text}
                                             </CardTitle>
                                             <Button 
-                                                variant="ghost" 
-                                                size="sm" 
-                                                onClick={() => deleteQuestion(q.id)} 
-                                                className="h-6 w-6 p-0 text-destructive hover:text-white hover:bg-destructive"
+                                                size="sm"
+                                                onClick={() => deleteQuestion(q.id)}
+                                                className="h-6 w-6 p-0 text-white bg-destructive hover:bg-destructive/90 dark:text-white dark:bg-destructive dark:hover:bg-destructive/80"
                                             >
                                                 <Trash2 className="h-3 w-3" />
                                             </Button>

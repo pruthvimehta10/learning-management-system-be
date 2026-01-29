@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getJWTFromClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -48,11 +49,26 @@ export default function AdminTopicsPage() {
 
   async function handleDeleteTopic(id: string) {
     if (!confirm("Are you sure you want to delete this topic and all its videos and quizzes?")) return;
-    const { error } = await supabase.from("topics").delete().eq("id", id);
-    if (error) {
-      alert("Error deleting topic: " + error.message);
-    } else {
-      setTopics(topics.filter((t) => t.id !== id));
+    
+    try {
+      const token = getJWTFromClient();
+      const res = await fetch(`/api/admin/topics/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert('Error deleting topic: ' + result.error);
+      } else {
+        setTopics(topics.filter((t) => t.id !== id));
+      }
+    } catch (error: any) {
+      alert('Error deleting topic: ' + error.message);
     }
   }
 
@@ -106,28 +122,17 @@ export default function AdminTopicsPage() {
                   <TableCell className="font-bold">{topic.title}</TableCell>
                   <TableCell className="font-bold">{topic.course_title}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="border-2 border-foreground font-bold bg-blue-100">
+                    <Badge variant="outline" className="border-2 border-foreground font-bold bg-blue-100 dark:bg-blue-900 text-foreground dark:text-blue-100">
                       {topic.video_url ? "1 Video" : "No Video"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="border-2 border-foreground font-bold bg-green-100">
+                    <Badge variant="outline" className="border-2 border-foreground font-bold bg-green-100 dark:bg-green-900 text-foreground dark:text-green-100">
                       {topic.quiz_count || 0} Quizzes
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        asChild
-                        className="h-8 w-8 border-2 border-foreground bg-background text-foreground hover:bg-muted"
-                        title="Edit Topic"
-                      >
-                        <Link href={`/admin/topics/${topic.id}/lesson`}>
-                          <BookOpen className="h-4 w-4" />
-                        </Link>
-                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

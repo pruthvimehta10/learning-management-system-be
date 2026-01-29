@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
+import { withAuthFlow, AuthenticatedRequest } from '@/lib/auth-middleware'
 
-export async function POST(request: Request) {
+async function handler(request: AuthenticatedRequest) {
   try {
     const body = await request.json()
     const { title, description, level } = body
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
         title,
         description,
         level,
-        instructor_id: '00000000-0000-0000-0000-000000000001',
+        instructor_id: request.user!.sub, // Use authenticated user's ID
         is_published: true,
       })
       .select()
@@ -32,3 +33,5 @@ export async function POST(request: Request) {
     return Response.json({ error: error.message }, { status: 500 })
   }
 }
+
+export const POST = (req: AuthenticatedRequest) => withAuthFlow('admin', handler)(req)
