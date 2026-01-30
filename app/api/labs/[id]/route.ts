@@ -1,5 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+
+// Use Service Role Key to bypass RLS
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(
     req: NextRequest,
@@ -7,8 +13,6 @@ export async function GET(
 ) {
     const { id } = await params
     try {
-        const supabase = await createClient()
-
         const { data: lab, error } = await supabase
             .from('labs')
             .select('*')
@@ -35,7 +39,6 @@ export async function PUT(
     const { id } = await params
     try {
         const body = await req.json()
-        const supabase = await createClient()
 
         const { data: lab, error } = await supabase
             .from('labs')
@@ -63,8 +66,6 @@ export async function DELETE(
 ) {
     const { id } = await params
     try {
-        const supabase = await createClient()
-
         const { error } = await supabase
             .from('labs')
             .delete()
