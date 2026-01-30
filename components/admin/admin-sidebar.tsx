@@ -23,6 +23,11 @@ const sidebarItems = [
         icon: Users,
     },
     {
+        title: 'Labs',
+        href: '/admin/labs',
+        icon: Settings, // Using Settings icon as placeholder or maybe a different one. BookOpen is taken.
+    },
+    {
         title: 'Settings',
         href: '/admin/settings',
         icon: Settings,

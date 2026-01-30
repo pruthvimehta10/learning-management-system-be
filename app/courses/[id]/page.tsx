@@ -10,21 +10,16 @@ export default async function CoursePage({
     const { id } = await params
     const supabase = await createClient()
 
-    // Fetch course with lessons directly
-    const { data: course } = await supabase
+    // 1. Fetch course details first (without join to avoid FK error)
+    const { data: course, error: courseError } = await supabase
         .from('courses')
-        .select(`
-            *,
-            lessons (
-                *,
-                quiz_questions (
-                    *,
-                    quiz_options (*)
-                )
-            )
-        `)
+        .select('*')
         .eq('id', id)
         .single()
+
+    if (courseError) {
+        console.error("Error fetching course:", courseError);
+    }
 
     if (!course) {
         return (
@@ -32,9 +27,36 @@ export default async function CoursePage({
                 <div className="text-center">
                     <h1 className="text-4xl font-black mb-4">404</h1>
                     <p className="text-xl">Course not found</p>
+                    {courseError && (
+                        <pre className="text-left bg-gray-100 p-4 rounded mt-4 text-xs text-red-500 overflow-auto max-w-lg mx-auto">
+                            DEBUG INFO:
+                            ID: {id}
+                            Error: {JSON.stringify(courseError, null, 2)}
+                        </pre>
+                    )}
                 </div>
             </div>
         )
+    }
+
+    // 2. Fetch lessons separately
+    // We try to fetch deeply rooted questions too. 
+    // If this fails due to lessons -> quiz_questions FK missing (unlikely?), we might need another split.
+    // Assuming only courses -> lessons FK is missing based on error 'courses' and 'lessons'.
+    const { data: lessonsData, error: lessonsError } = await supabase
+        .from('lessons')
+        .select(`
+            *,
+            quiz_questions (
+                *,
+                quiz_options (*)
+            )
+        `)
+        .eq('course_id', id)
+        .order('order_index')
+
+    if (lessonsError) {
+        console.error("Error fetching lessons:", lessonsError)
     }
 
     // Verify labid from JWT matches course's lab_id
@@ -55,11 +77,10 @@ export default async function CoursePage({
     }
 
     // Process lessons to match CoursePlayer interface
-    const lessons = (course.lessons || [])
-        .sort((a: any, b: any) => a.order_index - b.order_index)
+    const lessons = (lessonsData || [])
         .map((lesson: any, index: number) => ({
             ...lesson,
-            videoUrl: lesson.video_url,
+            videoUrl: lesson_url_safe(lesson),
             duration: lesson.duration || 10,
             completed: false, // In a real app, fetch 'lesson_completions'
             isLocked: index !== 0, // Unlock first lesson only for demo
@@ -75,21 +96,6 @@ export default async function CoursePage({
                 })),
         }));
 
-    // Note: To get options, we need a deeper join or a second query.
-    // Supabase recursive query for options:
-    /*
-      lessons (
-        ...,
-        quiz_questions (
-           ...,
-           quiz_options (*)
-        )
-      )
-    */
-
-    // Let's refetch deeply if needed, or update the query above.
-    // Updating the query above is better.
-
     return (
         <CoursePlayer
             courseTitle={course.title}
@@ -97,4 +103,9 @@ export default async function CoursePage({
             initialLessonId={lessons[0]?.id || ''}
         />
     )
+}
+
+function lesson_url_safe(lesson: any) {
+    if (lesson.video_url) return lesson.video_url
+    return ""
 }

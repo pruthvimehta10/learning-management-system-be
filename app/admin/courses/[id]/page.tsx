@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Plus, Save, FileQuestion, Edit, Trash2, Loader2, Video } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LessonEditDialog } from '@/components/admin/lesson-edit-dialog'
+import { CourseLabsSelector } from '@/components/admin/course-labs-selector'
 
 interface Lesson {
     id: string
@@ -56,41 +57,50 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     async function fetchCourse() {
         console.log('Fetching course data for:', courseId)
         try {
-            const { data, error } = await supabase
+            // Fetch Course Only
+            const { data: courseData, error: courseError } = await supabase
                 .from('courses')
-                .select(`
-                    *,
-                    lessons (
-                        id,
-                        title,
-                        description,
-                        video_url,
-                        video_duration_seconds,
-                        order_index,
-                        quiz_questions (count)
-                    )
-                `)
+                .select('*')
                 .eq('id', courseId)
                 .single()
 
-            if (error) {
-                console.error('Fetch error:', error)
-                throw error
+            if (courseError) {
+                console.error('Fetch course error:', courseError)
+                throw courseError
             }
 
-            if (data) {
-                setCourse(data as Course)
-                setTitle(data.title)
-                setDescription(data.description || '')
-                setLevel(data.level || '')
+            // Fetch Lessons separately
+            const { data: lessonsData, error: lessonsError } = await supabase
+                .from('lessons')
+                .select(`
+                    id,
+                    title,
+                    description,
+                    video_url,
+                    video_duration_seconds,
+                    order_index,
+                    quiz_questions (count)
+                `)
+                .eq('course_id', courseId)
+                .order('order_index')
 
-                const sortedLessons = ((data.lessons || []) as Lesson[]).sort((a, b) => a.order_index - b.order_index)
-                setLessons(sortedLessons)
+            if (lessonsError) {
+                // Ignore missing table error for lessons if it happens, just array empty
+                console.error('Fetch lessons error:', lessonsError)
+            }
+
+            if (courseData) {
+                setCourse(courseData as Course)
+                setTitle(courseData.title)
+                setDescription(courseData.description || '')
+                setLevel(courseData.level || '')
+
+                setLessons((lessonsData || []) as any[])
                 console.log('Course data loaded successfully')
             }
         } catch (err: any) {
             console.error('Failed to fetch course:', err)
-            alert('Error loading course data. Please refresh the page.')
+            // Don't alert blocking error, just log it. Data might be partial.
         }
     }
 
@@ -316,6 +326,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                             </div>
                         </CardContent>
                     </Card>
+
+                    <CourseLabsSelector courseId={courseId} />
 
                     <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-blue-50">
                         <CardHeader>

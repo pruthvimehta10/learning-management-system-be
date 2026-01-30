@@ -3,41 +3,49 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // Params are Promises in Next 15+
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
 
   try {
     const supabase = await createClient()
 
-    // Fetch course with lessons ordered by index
-    const { data: course, error } = await supabase
+    // 1. Fetch course only
+    const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select(`
-        *,
-        lessons (
-          *,
-          quiz_questions (*)
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single()
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    if (courseError) {
+      return NextResponse.json({ error: courseError.message }, { status: 400 })
     }
 
     if (!course) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 })
     }
 
-    // Sort lessons manually if needed (Supabase can also order but nested ordering syntax is complex)
-    // .order('order_index', { foreignTable: 'lessons', ascending: true }) // Easier to sort in JS sometimes
-    if (course.lessons) {
-      course.lessons.sort((a: any, b: any) => a.order_index - b.order_index)
+    // 2. Fetch lessons separately
+    const { data: lessons, error: lessonsError } = await supabase
+      .from('lessons')
+      .select('*, quiz_questions(*)')
+      .eq('course_id', id)
+      .order('order_index') // Using order() here is fine for direct table query
+
+    if (lessonsError) {
+      // We log but don't fail the whole request? Or maybe we should.
+      // Let's fail for consistency.
+      console.error("Error fetching lessons:", lessonsError)
+      return NextResponse.json({ error: 'Failed to fetch lessons' }, { status: 400 })
     }
 
-    return NextResponse.json(course)
+    // Combine manually
+    const result = {
+      ...course,
+      lessons: lessons || []
+    }
+
+    return NextResponse.json(result)
   } catch (error: any) {
     return NextResponse.json(
       { error: 'Internal server error' },
