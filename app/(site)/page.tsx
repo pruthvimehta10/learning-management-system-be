@@ -9,14 +9,39 @@ export const dynamic = 'force-dynamic'
 export default async function Home() {
   const supabase = await createClient()
 
-  const { data: featuredCourses, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('is_published', true)
-    .limit(3)
+  // Get Lab ID from headers (simulating specific machine access)
+  const { headers } = await import('next/headers')
+  const headersList = await headers()
+  const userLabId = headersList.get('x-lab-id')
 
-  if (error) console.error('Supabase Error:', error)
-  const courses = featuredCourses || []
+  let query = supabase.from('courses').select('*, course_labs!inner(lab_id)').eq('is_published', true)
+
+  if (userLabId) {
+    // If we have a specific Lab ID, filter courses assigned to this lab
+    // Note: We depend on course_labs!inner to perform the join filtering
+    query = query.eq('course_labs.lab_id', userLabId)
+  }
+
+  // If no lab ID, we might fallback to all published or maybe none?
+  // "see all courses of their lab id" -> implies if I have a lab id, I see MINE.
+  // If I don't, I see ALL? Or NONE? 
+  // Safety default: If no lab_id, show all published (as a default catalog).
+
+  const { data: filteredCourses, error } = await query
+
+  if (error) {
+    console.error('Supabase Error:', error)
+    // Fallback if join fails (e.g. schema issue): just fetch all published
+    // This prevents the page from crashing if the relationship is missing
+  }
+
+  // Fallback to basic fetch if the specific query failed or returned null (optional robustness)
+  let courses = filteredCourses || []
+
+  if (!filteredCourses && error) {
+    const { data: fallback } = await supabase.from('courses').select('*').eq('is_published', true)
+    courses = fallback || []
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,9 +50,13 @@ export default async function Home() {
       <section id="courses" className="max-w-7xl mx-auto px-4 py-12 border-t-4 border-foreground">
         <div className="space-y-8">
           <div className="space-y-2">
-            <h2 className="text-4xl sm:text-5xl font-black text-foreground">Featured Courses</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground">
+              {userLabId ? 'Your Lab Courses' : 'All Courses'}
+            </h2>
             <p className="text-lg font-semibold text-foreground">
-              Start with these popular courses and develop in-demand skills
+              {userLabId
+                ? 'Courses available for your current lab workstation.'
+                : 'Explore our complete catalog of courses.'}
             </p>
           </div>
 
@@ -82,14 +111,14 @@ export default async function Home() {
                     </div>
                   </div>
                 </div>
-          ))
-          ) : (
-          <div className="col-span-3 text-center py-12">
-            <p className="text-xl font-bold text-muted-foreground">No courses found.</p>
-          </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-xl font-bold text-muted-foreground">No courses found.</p>
+              </div>
             )}
+          </div>
         </div>
-    </div>
       </section >
     </div >
   )

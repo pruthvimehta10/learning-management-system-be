@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Users, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Users, Settings, LogOut, Folder } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -21,6 +21,11 @@ const sidebarItems = [
         title: 'Users',
         href: '/admin/users',
         icon: Users,
+    },
+    {
+        title: 'Categories',
+        href: '/admin/categories',
+        icon: Folder,
     },
     {
         title: 'Labs',

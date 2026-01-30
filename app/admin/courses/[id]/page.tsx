@@ -49,10 +49,18 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [level, setLevel] = useState('')
+    const [categories, setCategories] = useState<{ id: string, name: string }[]>([])
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
 
     useEffect(() => {
         fetchCourse()
+        fetchCategories()
     }, [courseId])
+
+    async function fetchCategories() {
+        const { data } = await supabase.from('categories').select('id, name').order('name')
+        if (data) setCategories(data)
+    }
 
     async function fetchCourse() {
         console.log('Fetching course data for:', courseId)
@@ -94,6 +102,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 setTitle(courseData.title)
                 setDescription(courseData.description || '')
                 setLevel(courseData.level || '')
+                setSelectedCategoryId(courseData.category_id || '')
 
                 setLessons((lessonsData || []) as any[])
                 console.log('Course data loaded successfully')
@@ -113,6 +122,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                     title,
                     description,
                     level,
+                    category_id: selectedCategoryId || null
                 })
                 .eq('id', courseId)
 
@@ -323,6 +333,19 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                     onChange={(e) => setLevel(e.target.value)}
                                     className="border-2 border-foreground"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="font-bold">Category</Label>
+                                <select 
+                                    className="flex h-10 w-full rounded-md border-2 border-foreground bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    value={selectedCategoryId}
+                                    onChange={(e) => setSelectedCategoryId(e.target.value)}
+                                >
+                                    <option value="">No Category</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </CardContent>
                     </Card>

@@ -45,7 +45,17 @@ export function Navbar() {
               className="flex items-center gap-2 text-foreground/80 font-bold px-3 py-2 rounded-xl h-10 transition-colors hover:bg-muted"
             >
               <LayoutDashboard className="h-4 w-4" />
-              <span>Dashboard</span>
+
+
+            </Link>
+
+            {/* Categories Link */}
+            <Link
+              href="/categories"
+              className="flex items-center gap-2 text-foreground/80 font-bold px-3 py-2 rounded-xl h-10 transition-colors hover:bg-muted"
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Categories</span>
             </Link>
 
             {/* Search Bar */}
@@ -90,6 +100,13 @@ export function Navbar() {
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       Dashboard
+                    </Link>
+                    <Link
+                      href="/categories"
+                      className="flex items-center gap-2 p-2 rounded-md hover:bg-secondary text-foreground"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Categories
                     </Link>
                   </div>
 
