@@ -1,10 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+
+// Use Service Role Key to bypass RLS, relying on Middleware for AuthZ
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(req: NextRequest) {
     try {
-        const supabase = await createClient()
-
         const { data: labs, error } = await supabase
             .from('labs')
             .select('*')
@@ -34,12 +38,6 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             )
         }
-
-        const supabase = await createClient()
-
-        // Check auth/permissions? usage of this API implies admin or similar.
-        // For now we rely on RLS or just general auth. 
-        // Ideally we should check if user is admin.
 
         const { data: lab, error } = await supabase
             .from('labs')
