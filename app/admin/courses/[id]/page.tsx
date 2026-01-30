@@ -12,10 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Plus, Save, FileQuestion, Edit, Trash2, Loader2, Video } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { LessonEditDialog } from '@/components/admin/lesson-edit-dialog'
+import { TopicEditDialog } from '@/components/admin/topic-edit-dialog'
 import { CourseLabsSelector } from '@/components/admin/course-labs-selector'
 
-interface Lesson {
+interface Topic {
     id: string
     title: string
     description?: string
@@ -31,7 +31,7 @@ interface Course {
     title: string
     description: string
     level: string
-    lessons: Lesson[]
+    topics: Topic[]
 }
 
 export default function AdminCourseEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,8 +41,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
 
     const [loading, setLoading] = useState(false)
     const [course, setCourse] = useState<Course | null>(null)
-    const [lessons, setLessons] = useState<Lesson[]>([])
-    const [editingLesson, setEditingLesson] = useState<Lesson | null>(null)
+    const [topics, setTopics] = useState<Topic[]>([])
+    const [editingTopic, setEditingTopic] = useState<Topic | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
     // Form state
@@ -77,9 +77,9 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 throw courseError
             }
 
-            // Fetch Lessons separately
-            const { data: lessonsData, error: lessonsError } = await supabase
-                .from('lessons')
+            // Fetch Topics separately
+            const { data: topicsData, error: topicsError } = await supabase
+                .from('topics')
                 .select(`
                     id,
                     title,
@@ -92,9 +92,9 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 .eq('course_id', courseId)
                 .order('order_index')
 
-            if (lessonsError) {
-                // Ignore missing table error for lessons if it happens, just array empty
-                console.error('Fetch lessons error:', lessonsError)
+            if (topicsError) {
+                // Ignore missing table error for topics if it happens, just array empty
+                console.error('Fetch topics error:', topicsError)
             }
 
             if (courseData) {
@@ -104,7 +104,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 setLevel(courseData.level || '')
                 setSelectedCategoryId(courseData.category_id || '')
 
-                setLessons((lessonsData || []) as any[])
+                setTopics((topicsData || []) as any[])
                 console.log('Course data loaded successfully')
             }
         } catch (err: any) {
@@ -142,25 +142,25 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
         }
     }
 
-    async function handleDeleteLesson(lessonId: string) {
-        if (!confirm('Are you sure you want to delete this lesson? This will also delete all associated quizzes.')) {
+    async function handleDeleteTopic(topicId: string) {
+        if (!confirm('Are you sure you want to delete this topic? This will also delete all associated quizzes.')) {
             return
         }
 
         const { error } = await supabase
-            .from('lessons')
+            .from('topics')
             .delete()
-            .eq('id', lessonId)
+            .eq('id', topicId)
 
         if (error) {
-            alert('Error deleting lesson: ' + error.message)
+            alert('Error deleting topic: ' + error.message)
         } else {
             fetchCourse()
         }
     }
 
-    function openEditDialog(lesson: Lesson) {
-        setEditingLesson(lesson)
+    function openEditDialog(topic: Topic) {
+        setEditingTopic(topic)
         setDialogOpen(true)
     }
 
@@ -201,8 +201,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="font-black">Course Details</CardTitle>
                             <Button size="sm" variant="outline" asChild className="border-2 border-foreground font-bold">
-                                <Link href={`/admin/courses/${courseId}/lessons/new`}>
-                                    <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                                <Link href={`/admin/courses/${courseId}/topics/new`}>
+                                    <Plus className="mr-2 h-4 w-4" /> Add Topic
                                 </Link>
                             </Button>
                         </CardHeader>
@@ -230,9 +230,9 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
 
                     <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="font-black">Lessons & Videos</CardTitle>
+                            <CardTitle className="font-black">Topics & Videos</CardTitle>
                             <Badge variant="outline" className="border-2 border-foreground font-bold">
-                                {lessons.length} Lessons
+                                {topics.length} Topics
                             </Badge>
                         </CardHeader>
                         <CardContent>
@@ -247,24 +247,24 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {lessons.map((lesson, idx) => (
-                                        <TableRow key={lesson.id} className="font-medium">
+                                    {topics.map((topic, idx) => (
+                                        <TableRow key={topic.id} className="font-medium">
                                             <TableCell>{idx + 1}</TableCell>
-                                            <TableCell className="font-semibold">{lesson.title}</TableCell>
+                                            <TableCell className="font-semibold">{topic.title}</TableCell>
                                             <TableCell>
-                                                {lesson.video_url ? (
+                                                {topic.video_url ? (
                                                     <Badge variant="outline" className="border-2 border-foreground bg-blue-100 text-blue-800">
                                                         <Video className="h-3 w-3 mr-1" />
-                                                        {lesson.video_duration_seconds ? `${Math.round(lesson.video_duration_seconds / 60)}m` : 'Video'}
+                                                        {topic.video_duration_seconds ? `${Math.round(topic.video_duration_seconds / 60)}m` : 'Video'}
                                                     </Badge>
                                                 ) : (
                                                     <span className="text-muted-foreground text-xs">No video</span>
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                {lesson.quiz_questions && lesson.quiz_questions[0]?.count > 0 ? (
+                                                {topic.quiz_questions && topic.quiz_questions[0]?.count > 0 ? (
                                                     <Badge variant="outline" className="border-2 border-foreground bg-green-100 text-green-800">
-                                                        {lesson.quiz_questions[0].count} Qs
+                                                        {topic.quiz_questions[0].count} Qs
                                                     </Badge>
                                                 ) : (
                                                     <span className="text-muted-foreground text-xs">No Quiz</span>
@@ -275,9 +275,9 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
-                                                        onClick={() => openEditDialog(lesson)}
+                                                        onClick={() => openEditDialog(topic)}
                                                         className="h-8 w-8"
-                                                        title="Edit Lesson"
+                                                        title="Edit Topic"
                                                     >
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
@@ -288,16 +288,16 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                                         className="h-8 w-8"
                                                         title="Manage Quiz"
                                                     >
-                                                        <Link href={`/admin/courses/${courseId}/lessons/${lesson.id}/quiz`}>
+                                                        <Link href={`/admin/courses/${courseId}/topics/${topic.id}/quiz`}>
                                                             <FileQuestion className="h-4 w-4" />
                                                         </Link>
                                                     </Button>
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
-                                                        onClick={() => handleDeleteLesson(lesson.id)}
+                                                        onClick={() => handleDeleteTopic(topic.id)}
                                                         className="h-8 w-8 hover:text-destructive"
-                                                        title="Delete Lesson"
+                                                        title="Delete Topic"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -305,10 +305,10 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                             </TableCell>
                                         </TableRow>
                                     ))}
-                                    {lessons.length === 0 && (
+                                    {topics.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                                                No lessons yet. Click "Add Lesson" to get started.
+                                                No topics yet. Click "Add Topic" to get started.
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -362,8 +362,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                                 variant="outline"
                                 className="w-full border-2 border-foreground font-bold justify-start"
                             >
-                                <Link href={`/admin/courses/${courseId}/lessons/new`}>
-                                    <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                                <Link href={`/admin/courses/${courseId}/topics/new`}>
+                                    <Plus className="mr-2 h-4 w-4" /> Add Topic
                                 </Link>
                             </Button>
                             <Button
@@ -380,8 +380,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 </div>
             </div>
 
-            <LessonEditDialog
-                lesson={editingLesson}
+            <TopicEditDialog
+                topic={editingTopic}
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
                 onSuccess={fetchCourse}

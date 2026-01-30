@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { LessonQuizModal } from './lesson-quiz-modal'
 
-interface Lesson {
+interface Topic {
   id: string
   title: string
   duration: number // in minutes
@@ -22,25 +22,25 @@ interface Lesson {
 
 interface CoursePlayerProps {
   courseTitle: string
-  lessons: Lesson[]
-  initialLessonId: string
+  topics: Topic[]
+  initialTopicId: string
 }
 
-export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePlayerProps) {
-  const [currentLessonId, setCurrentLessonId] = useState(initialLessonId)
+export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlayerProps) {
+  const [currentTopicId, setCurrentTopicId] = useState(initialTopicId)
   const [isVideoEnded, setIsVideoEnded] = useState(false)
   const [showQuizPrompt, setShowQuizPrompt] = useState(false)
   const [isQuizOpen, setIsQuizOpen] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const currentLesson = lessons.find((l) => l.id === currentLessonId)
+  const currentTopic = topics.find((t) => t.id === currentTopicId)
 
-  // Auto-select first lesson if initialLessonId is not valid
+  // Auto-select first topic if initialTopicId is not valid
   useEffect(() => {
-    if (!currentLesson && lessons.length > 0) {
-      setCurrentLessonId(lessons[0].id)
+    if (!currentTopic && topics.length > 0) {
+      setCurrentTopicId(topics[0].id)
     }
-  }, [currentLesson, lessons, initialLessonId])
+  }, [currentTopic, topics, initialTopicId])
 
 
   const handleVideoEnd = () => {
@@ -48,13 +48,13 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
     setShowQuizPrompt(true)
   }
 
-  const handleLessonClick = (lessonId: string) => {
-    const lesson = lessons.find((l) => l.id === lessonId)
+  const handleTopicClick = (topicId: string) => {
+    const topic = topics.find((t) => t.id === topicId)
     // Allow clicking if not locked or if it's the current one (though logic prevents that loop usually)
-    // In a real app we might allow re-watching locked previous lessons if completed?
+    // In a real app we might allow re-watching locked previous topics if completed?
     // For now assuming locked = strictly next in sequence not reached
-    if (!lesson?.isLocked) {
-      setCurrentLessonId(lessonId)
+    if (!topic?.isLocked) {
+      setCurrentTopicId(topicId)
       setIsVideoEnded(false)
       setShowQuizPrompt(false)
     }
@@ -76,8 +76,8 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
     setIsQuizOpen(false)
   }
 
-  const completedCount = lessons.filter((l) => l.completed).length
-  const totalCount = lessons.filter((l) => !l.isLocked).length // Or just lessons.length based on logic
+  const completedCount = topics.filter((t) => t.completed).length
+  const totalCount = topics.filter((t) => !t.isLocked).length // Or just topics.length based on logic
 
   return (
     <div className="bg-background min-h-screen">
@@ -87,7 +87,7 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
           <h1 className="text-4xl font-black text-card-foreground tracking-tight">{courseTitle}</h1>
           <p className="text-muted-foreground font-bold mt-3 flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            Progress: {completedCount} of {lessons.length} lessons completed
+            Progress: {completedCount} of {topics.length} topics completed
           </p>
         </div>
       </div>
@@ -99,12 +99,12 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player Container */}
             <div className="overflow-hidden bg-black rounded-3xl shadow-2xl aspect-video flex items-center justify-center relative">
-              {currentLesson ? (
+              {currentTopic ? (
                 <>
                   <video
-                    key={currentLesson.id} // Re-render video element on lesson change
+                    key={currentTopic.id} // Re-render video element on topic change
                     ref={videoRef}
-                    src={currentLesson.videoUrl}
+                    src={currentTopic.videoUrl}
                     controls
                     className="w-full h-full object-cover"
                     onEnded={handleVideoEnd}
@@ -125,14 +125,14 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
               )}
             </div>
 
-            {/* Lesson Info */}
-            {currentLesson && (
+            {/* Topic Info */}
+            {currentTopic && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-3xl font-black text-foreground">{currentLesson.title}</h2>
+                  <h2 className="text-3xl font-black text-foreground">{currentTopic.title}</h2>
                   <div className="flex items-center gap-2 mt-2 text-foreground font-bold">
                     <Clock className="h-4 w-4" />
-                    <span>{currentLesson.duration} minutes</span>
+                    <span>{currentTopic.duration} minutes</span>
                   </div>
                 </div>
 
@@ -141,13 +141,13 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                   <div className="border-4 border-foreground bg-secondary p-6" style={{ boxShadow: '4px 4px 0px rgba(0,0,0,0.15)' }}>
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
-                        <h3 className="font-black text-foreground mb-2 text-lg">Lesson Complete!</h3>
+                        <h3 className="font-black text-foreground mb-2 text-lg">Topic Complete!</h3>
                         <p className="text-sm font-semibold text-foreground mb-4">
-                          Take the lesson quiz to reinforce what you have learned.
+                          Take the topic quiz to reinforce what you have learned.
                         </p>
                         <div className="flex gap-3">
                           <Button onClick={handleStartQuiz} className="border-4 border-foreground bg-primary text-primary-foreground font-black">
-                            Take Lesson Quiz
+                            Take Topic Quiz
                           </Button>
                           <Button onClick={() => setShowQuizPrompt(false)} className="border-4 border-foreground bg-background text-foreground font-black">
                             Skip for now
@@ -160,9 +160,9 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
 
                 {/* Lesson Description */}
                 <div className="rounded-3xl p-8 bg-card shadow-lg">
-                  <h3 className="font-black text-foreground mb-3">About this lesson</h3>
+                  <h3 className="font-black text-foreground mb-3">About this topic</h3>
                   <p className="text-foreground leading-relaxed font-semibold">
-                    {currentLesson.description || "Learn the fundamentals and best practices covered in this lesson. Complete the video and take the lesson quiz to reinforce your understanding and unlock the next lesson."}
+                    {currentTopic.description || "Learn the fundamentals and best practices covered in this topic. Complete the video and take the topic quiz to reinforce your understanding and unlock the next topic."}
                   </p>
                 </div>
               </div>
@@ -189,21 +189,21 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                 </TabsList>
 
                 <TabsContent value="content" className="p-4 space-y-2 max-h-[600px] overflow-y-auto">
-                  {lessons.map((lesson, index) => (
+                  {topics.map((topic, index) => (
                     <button
-                      key={lesson.id}
-                      onClick={() => handleLessonClick(lesson.id)}
-                      disabled={lesson.isLocked}
-                      className={`w-full text-left p-4 transition-all font-semibold rounded-2xl group/item mb-2 ${currentLessonId === lesson.id
+                      key={topic.id}
+                      onClick={() => handleTopicClick(topic.id)}
+                      disabled={topic.isLocked}
+                      className={`w-full text-left p-4 transition-all font-semibold rounded-2xl group/item mb-2 ${currentTopicId === topic.id
                         ? 'bg-primary/10 text-primary shadow-sm border border-primary/20' // Active state clean up
                         : 'bg-transparent hover:bg-muted/50 text-muted-foreground'
-                        } ${lesson.isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+                        } ${topic.isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-1">
-                          {lesson.completed ? (
+                          {topic.completed ? (
                             <CheckCircle className="h-5 w-5 text-green-600" />
-                          ) : lesson.isLocked ? (
+                          ) : topic.isLocked ? (
                             <Lock className="h-5 w-5 opacity-50" />
                           ) : (
                             <Play className="h-5 w-5" />
@@ -211,10 +211,10 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-sm truncate">
-                            {index + 1}. {lesson.title}
+                            {index + 1}. {topic.title}
                           </p>
                           <p className="text-xs mt-1 font-medium opacity-70">
-                            {lesson.duration} min
+                            {topic.duration} min
                           </p>
                         </div>
                       </div>
@@ -255,11 +255,11 @@ export function CoursePlayer({ courseTitle, lessons, initialLessonId }: CoursePl
 
 
       {/* Quiz Modal */}
-      {currentLesson && currentLesson.questions && currentLesson.questions.length > 0 && (
+      {currentTopic && currentTopic.questions && currentTopic.questions.length > 0 && (
         <LessonQuizModal
           isOpen={isQuizOpen}
-          lessonTitle={currentLesson.title}
-          questions={currentLesson.questions}
+          lessonTitle={currentTopic.title}
+          questions={currentTopic.questions}
           onClose={handleQuizClose}
           onSubmit={handleQuizSubmit}
         />
