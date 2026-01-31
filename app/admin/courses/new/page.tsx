@@ -30,7 +30,7 @@ export default function NewCoursePage() {
         const formData = new FormData(event.currentTarget)
         const title = formData.get('title') as string
         const description = formData.get('description') as string
-        const category_id = formData.get('category_id') as string
+        const category_id = formData.get('category_id') === 'none' ? null : formData.get('category_id') as string
 
         const { data: { user } } = await supabase.auth.getUser()
 
@@ -92,7 +92,7 @@ export default function NewCoursePage() {
                             <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">No Category</SelectItem>
+                            <SelectItem value="none">No Category</SelectItem>
                             {categories.map((c) => (
                                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                             ))}

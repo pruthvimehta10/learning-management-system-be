@@ -48,7 +48,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     // Form state
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [level, setLevel] = useState('')
+    const [level, setLevel] = useState('Beginner') // Set default to avoid constraint violation
     const [categories, setCategories] = useState<{ id: string, name: string }[]>([])
     const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
 
@@ -78,23 +78,41 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
             }
 
             // Fetch Topics separately
-            const { data: topicsData, error: topicsError } = await supabase
-                .from('topics')
-                .select(`
-                    id,
-                    title,
-                    description,
-                    video_url,
-                    video_duration_seconds,
-                    order_index,
-                    quiz_questions (count)
-                `)
-                .eq('course_id', courseId)
-                .order('order_index')
-
-            if (topicsError) {
-                // Ignore missing table error for topics if it happens, just array empty
-                console.error('Fetch topics error:', topicsError)
+            let topicsData: any[] = []
+            let topicsError: any = null
+            
+            try {
+                console.log('🔍 Fetching topics for course:', courseId)
+                const result = await supabase
+                    .from('topics')
+                    .select(`
+                        id,
+                        title,
+                        description,
+                        video_url,
+                        video_duration_seconds,
+                        order_index,
+                        quiz_questions!quiz_questions_topic_id_fkey (count)
+                    `)
+                    .eq('course_id', courseId)
+                    .order('order_index')
+                
+                console.log('📊 Supabase result - Data:', result.data?.length || 0, 'items')
+                console.log('📊 Supabase result - Error:', result.error ? 'YES' : 'NO')
+                console.log('📊 Supabase result - Status:', result.status)
+                
+                topicsData = result.data || []
+                topicsError = result.error
+                
+                if (topicsError) {
+                    console.log('❌ Topics fetch failed!')
+                    console.log('🔍 Error object:', topicsError)
+                    console.log('🔍 Error string:', String(topicsError))
+                } else {
+                    console.log('✅ Successfully fetched topics:', topicsData?.length || 0, 'topics')
+                }
+            } catch (err) {
+                console.log('💥 Unexpected error in topics fetch:', err)
             }
 
             if (courseData) {
@@ -116,12 +134,15 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
     async function handleSaveCourse() {
         setLoading(true)
         try {
+            // Ensure level is not empty - provide default value
+            const courseLevel = level || 'Beginner'
+            
             const { error } = await supabase
                 .from('courses')
                 .update({
                     title,
                     description,
-                    level,
+                    level: courseLevel,
                     category_id: selectedCategoryId || null
                 })
                 .eq('id', courseId)
@@ -187,7 +208,8 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                 <Button
                     onClick={handleSaveCourse}
                     disabled={loading}
-                    className="border-4 border-foreground bg-primary text-primary-foreground font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-primary bg-background text-primary font-black shadow-lg hover:bg-primary hover:text-primary-foreground hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    size="lg"
                 >
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Save className="mr-2 h-4 w-4" /> Save Changes
@@ -197,10 +219,10 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
             <div className="grid gap-6 md:grid-cols-3">
                 {/* Main Info */}
                 <div className="md:col-span-2 space-y-6">
-                    <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                    <Card className="bg-card text-card-foreground border-4 border-border rounded-xl shadow-lg">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="font-black">Course Details</CardTitle>
-                            <Button size="sm" variant="outline" asChild className="border-2 border-foreground font-bold">
+                            <Button size="sm" variant="outline" asChild className="border-2 border-border font-bold hover:bg-accent hover:text-accent-foreground hover:border-accent hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                                 <Link href={`/admin/courses/${courseId}/topics/new`}>
                                     <Plus className="mr-2 h-4 w-4" /> Add Topic
                                 </Link>
@@ -228,7 +250,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                         </CardContent>
                     </Card>
 
-                    <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                    <Card className="bg-card text-card-foreground border-4 border-border rounded-xl shadow-lg">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="font-black">Topics & Videos</CardTitle>
                             <Badge variant="outline" className="border-2 border-foreground font-bold">
@@ -321,7 +343,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
 
                 {/* Sidebar Settings */}
                 <div className="space-y-6">
-                    <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                    <Card className="bg-card text-card-foreground border-4 border-border rounded-xl shadow-lg">
                         <CardHeader>
                             <CardTitle className="font-black">Settings</CardTitle>
                         </CardHeader>
@@ -330,7 +352,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                             <div className="space-y-2">
                                 <Label className="font-bold">Category</Label>
                                 <select
-                                    className="flex h-10 w-full rounded-md border-2 border-foreground bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex h-10 w-full rounded-lg border-2 border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={selectedCategoryId}
                                     onChange={(e) => setSelectedCategoryId(e.target.value)}
                                 >
@@ -345,7 +367,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
 
                     <CourseLabsSelector courseId={courseId} />
 
-                    <Card className="border-4 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-blue-50">
+                    <Card className="bg-card text-card-foreground border-4 border-border rounded-xl shadow-lg bg-secondary/30">
                         <CardHeader>
                             <CardTitle className="font-black text-sm">Quick Actions</CardTitle>
                         </CardHeader>
@@ -353,7 +375,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                             <Button
                                 asChild
                                 variant="outline"
-                                className="w-full border-2 border-foreground font-bold justify-start"
+                                className="w-full border-2 border-border font-bold justify-start hover:bg-accent hover:text-accent-foreground hover:border-accent hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 <Link href={`/admin/courses/${courseId}/topics/new`}>
                                     <Plus className="mr-2 h-4 w-4" /> Add Topic
@@ -362,7 +384,7 @@ export default function AdminCourseEditPage({ params }: { params: Promise<{ id: 
                             <Button
                                 asChild
                                 variant="outline"
-                                className="w-full border-2 border-foreground font-bold justify-start"
+                                className="w-full border-2 border-border font-bold justify-start hover:bg-accent hover:text-accent-foreground hover:border-accent hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 <Link href={`/courses/${courseId}`} target="_blank">
                                     <Video className="mr-2 h-4 w-4" /> Preview Course

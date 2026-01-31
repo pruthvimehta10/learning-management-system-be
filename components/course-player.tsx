@@ -187,9 +187,9 @@ export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlay
               {currentTopic ? (
                 <>
                   <video
-                    key={currentTopic.id} // Re-render video element on topic change
+                    key={currentTopic?.id}
                     ref={videoRef}
-                    src={currentTopic.videoUrl}
+                    src={currentTopic?.videoUrl ? `/api/video?url=${encodeURIComponent(currentTopic.videoUrl)}&topicId=${currentTopic.id}` : ''}
                     controls
                     className="w-full h-full object-cover"
                     onEnded={handleVideoEnd}
@@ -198,14 +198,15 @@ export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlay
                     disableRemotePlayback
                     onContextMenu={(e) => e.preventDefault()}
                     onDragStart={(e) => e.preventDefault()}
-                    style={{ pointerEvents: 'auto' }}
-                  />
-                  {/* Enhanced security overlay */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    onContextMenu={(e) => e.preventDefault()}
-                    onDragStart={(e) => e.preventDefault()}
-                    style={{ userSelect: 'none' }}
+                    onDrop={(e) => e.preventDefault()}
+                    style={{
+                      WebkitUserSelect: 'none',
+                      MozUserSelect: 'none',
+                      msUserSelect: 'none',
+                      userSelect: 'none',
+                      WebkitTouchCallout: 'none',
+                      WebkitTapHighlightColor: 'transparent'
+                    }}
                   />
                 </>
               ) : (

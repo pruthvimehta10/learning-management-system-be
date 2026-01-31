@@ -5,91 +5,100 @@
 
 @layer base {
   :root {
-    /* --- LIGHT MODE (Softer Colors) --- */
+    /* --- LIGHT MODE (Professional Colors) --- */
     --background: hsl(0 0% 100%);
-    --foreground: hsl(0 0% 25%);
-    /* Softer Black */
+    --foreground: hsl(0 0% 3.9%);
+    /* Pure black for better contrast */
 
     --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 25%);
+    --card-foreground: hsl(0 0% 3.9%);
 
     --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(0 0% 25%);
+    --popover-foreground: hsl(0 0% 3.9%);
 
-    --primary: hsl(0 0% 20%);
-    /* Softer Primary */
-    --primary-foreground: hsl(0 0% 100%);
+    --primary: hsl(0 0% 9%);
+    /* Strong primary */
+    --primary-foreground: hsl(0 0% 98%);
 
-    --secondary: hsl(0 0% 94%);
-    /* Softer Secondary */
-    --secondary-foreground: hsl(0 0% 25%);
+    --secondary: hsl(0 0% 96.1%);
+    /* Clean secondary */
+    --secondary-foreground: hsl(0 0% 9%);
 
-    --muted: hsl(0 0% 98%);
-    --muted-foreground: hsl(0 0% 45%);
+    --muted: hsl(0 0% 96.1%);
+    --muted-foreground: hsl(0 0% 45.1%);
 
-    --accent: hsl(0 0% 98%);
-    --accent-foreground: hsl(0 0% 25%);
+    --accent: hsl(0 0% 96.1%);
+    --accent-foreground: hsl(0 0% 9%);
 
-    --destructive: hsl(0 0% 20%);
-    --destructive-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 84.2% 60.2%);
+    /* Professional red */
+    --destructive-foreground: hsl(0 0% 98%);
 
-    --border: hsl(0 0% 96%);
-    /* Extremely subtle borders */
-    --input: hsl(0 0% 96%);
-    --ring: hsl(0 0% 25%);
+    --border: hsl(0 0% 89.8%);
+    /* Clear borders */
+    --input: hsl(0 0% 89.8%);
+    --ring: hsl(0 0% 3.9%);
 
-    --radius: 0.75rem;
-    /* Slightly rounder */
+    --radius: 0.5rem;
+    /* Professional radius */
   }
 
   .dark {
-    /* --- DARK MODE (Softer White) --- */
-    --background: hsl(0 0% 5%);
+    /* --- DARK MODE (Professional Colors) --- */
+    --background: hsl(0 0% 3.9%);
     /* Dark background */
-    --foreground: hsl(0 0% 85%);
-    /* Softer White */
+    --foreground: hsl(0 0% 98%);
+    /* Pure white for contrast */
 
-    --card: hsl(0 0% 100% / 0.04);
-    /* SEMI-TRANSPARENT LIFT */
-    --card-foreground: hsl(0 0% 85%);
+    --card: hsl(0 0% 14.9%);
+    /* Elevated card */
+    --card-foreground: hsl(0 0% 98%);
 
-    --popover: hsl(0 0% 8%);
-    --popover-foreground: hsl(0 0% 85%);
+    --popover: hsl(0 0% 14.9%);
+    --popover-foreground: hsl(0 0% 98%);
 
-    --primary: hsl(0 0% 90%);
-    /* Softer Primary */
-    --primary-foreground: hsl(0 0% 5%);
+    --primary: hsl(0 0% 98%);
+    /* Light primary */
+    --primary-foreground: hsl(0 0% 9%);
 
-    --secondary: hsl(0 0% 15%);
-    /* Softer Secondary */
-    --secondary-foreground: hsl(0 0% 90%);
+    --secondary: hsl(0 0% 14.9%);
+    /* Dark secondary */
+    --secondary-foreground: hsl(0 0% 98%);
 
-    --muted: hsl(0 0% 15%);
-    --muted-foreground: hsl(0 0% 55%);
+    --muted: hsl(0 0% 14.9%);
+    --muted-foreground: hsl(0 0% 63.9%);
 
-    --accent: hsl(0 0% 15%);
-    --accent-foreground: hsl(0 0% 90%);
+    --accent: hsl(0 0% 14.9%);
+    --accent-foreground: hsl(0 0% 98%);
 
-    --destructive: hsl(0 0% 90%);
-    --destructive-foreground: hsl(0 0% 5%);
+    --destructive: hsl(0 62.8% 30.6%);
+    /* Dark red */
+    --destructive-foreground: hsl(0 0% 98%);
 
-    --border: hsl(0 0% 15%);
-    /* Subtle dark border */
-    --input: hsl(0 0% 15%);
-    --ring: hsl(0 0% 85%);
+    --border: hsl(0 0% 14.9%);
+    /* Clear dark borders */
+    --input: hsl(0 0% 14.9%);
+    --ring: hsl(0 0% 83.1%);
   }
 }
 
-/* FORCE REMOVE BUTTON BORDERS */
-button {
-  border-width: 0px !important;
-  box-shadow: none !important;
-  /* Removes any shadow outlines */
-}
+/* Professional text styles */
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 
-/* Optional: If you want to keep borders on inputs but not buttons */
-input {
-  border-width: 1px !important;
+  /* Professional card styles */
+  .card-professional {
+    @apply bg-card text-card-foreground border border-border rounded-md shadow-md;
+  }
+
+  .card-professional-lg {
+    @apply bg-card text-card-foreground border border-border rounded-lg shadow-lg;
+  }
 }
 
 @theme inline {
@@ -119,27 +128,29 @@ input {
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Ensure all interactive elements have proper contrast */
+  button, a, input, textarea, select {
+    @apply text-foreground;
+  }
+
+  /* Fix muted text visibility */
+  .text-muted-foreground {
+    @apply opacity-80;
   }
 }
 

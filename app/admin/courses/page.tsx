@@ -42,17 +42,52 @@ export default function AdminCoursesPage() {
     }
 
     async function handleDeleteCourse(id: string) {
-        if (!confirm('Are you sure you want to delete this course?')) return
+        if (!confirm('Are you sure you want to delete this course? This will permanently delete all topics, quizzes, and enrollments associated with this course.')) {
+            return
+        }
 
-        const { error } = await supabase
-            .from('courses')
-            .delete()
-            .eq('id', id)
+        try {
+            console.log('Starting course deletion for:', id)
 
-        if (error) {
-            alert('Error deleting course: ' + error.message)
-        } else {
+            // Call the API endpoint instead of direct Supabase deletion
+            const response = await fetch(`/api/courses?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to delete course')
+            }
+
+            console.log('Course deletion result:', result)
+
+            // Remove from local state
             setCourses(courses.filter(c => c.id !== id))
+            
+            // Show success message
+            alert('Course deleted successfully!')
+            
+        } catch (error: any) {
+            console.error('Course deletion error:', error)
+            
+            // Provide detailed error message
+            let errorMessage = 'Error deleting course: '
+            
+            if (error.message.includes('foreign key constraint')) {
+                errorMessage += 'Foreign key constraint violation. Related data exists that cannot be automatically deleted.'
+            } else if (error.message.includes('permission')) {
+                errorMessage += 'You do not have permission to delete this course.'
+            } else if (error.message.includes('does not exist')) {
+                errorMessage += 'One of the required tables does not exist. Please check your database schema.'
+            } else {
+                errorMessage += error.message
+            }
+            
+            alert(errorMessage + '\n\nCheck the browser console and server logs for detailed error information.')
         }
     }
 

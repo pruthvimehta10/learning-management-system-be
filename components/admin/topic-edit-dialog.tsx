@@ -91,7 +91,6 @@ export function TopicEditDialog({ topic, open, onOpenChange, onSuccess }: TopicE
                 title: formData.get('title') as string,
                 description: formData.get('description') as string,
                 video_url: videoUrl,
-                video_duration_seconds: parseInt(formData.get('duration') as string) * 60 || 0,
             })
             .eq('id', topic.id)
 
@@ -137,19 +136,10 @@ export function TopicEditDialog({ topic, open, onOpenChange, onSuccess }: TopicE
 
                     <div className="space-y-3 bg-secondary/10 p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <Label className="font-black uppercase text-xs flex items-center gap-2">
-                            <VideoIcon className="h-4 w-4" /> Video Source
+                            <VideoIcon className="h-4 w-4" /> Video Upload
                         </Label>
 
                         <div className="space-y-3">
-                            <Input
-                                id="edit-video-url"
-                                name="video_url"
-                                value={videoUrl}
-                                onChange={(e) => setVideoUrl(e.target.value)}
-                                placeholder="Paste video URL or upload below..."
-                                className="border-2 border-foreground bg-background font-bold text-xs"
-                            />
-
                             <div className="relative">
                                 <input
                                     type="file"
@@ -178,20 +168,13 @@ export function TopicEditDialog({ topic, open, onOpenChange, onSuccess }: TopicE
                                         />
                                     </div>
                                 )}
+                                {videoUrl && !uploading && (
+                                    <div className="mt-3 p-3 bg-green-50 border-2 border-green-500 rounded-lg">
+                                        <p className="text-xs font-bold text-green-800">✅ Video uploaded successfully</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    </div>
-
-                    <div className="space-y-2 pb-4">
-                        <Label htmlFor="edit-duration" className="font-black uppercase text-xs">Duration (minutes)</Label>
-                        <Input
-                            id="edit-duration"
-                            name="duration"
-                            type="number"
-                            min="0"
-                            defaultValue={topic.video_duration_seconds ? Math.round(topic.video_duration_seconds / 60) : 0}
-                            className="border-2 border-foreground font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-32"
-                        />
                     </div>
 
                     <DialogFooter className="gap-2 sm:gap-0">

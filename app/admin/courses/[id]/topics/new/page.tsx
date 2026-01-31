@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Upload } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { use } from 'react'
 
@@ -15,7 +15,53 @@ export default function NewTopicPage({ params }: { params: Promise<{ id: string 
     const { id: courseId } = use(params)
     const router = useRouter()
     const [loading, setLoading] = useState(false)
+    const [uploading, setUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [videoUrl, setVideoUrl] = useState('')
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const supabase = createClient()
+
+    async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setUploading(true)
+        setUploadProgress(10)
+
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${crypto.randomUUID()}.${fileExt}`
+            const filePath = `topic-videos/${fileName}`
+
+            const { data, error } = await supabase.storage
+                .from('videos')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                })
+
+            if (error) throw error
+
+            setUploadProgress(80)
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('videos')
+                .getPublicUrl(filePath)
+
+            setVideoUrl(publicUrl)
+            setUploadProgress(100)
+
+            setTimeout(() => {
+                setUploading(false)
+                setUploadProgress(0)
+            }, 500)
+
+        } catch (error: any) {
+            alert('Upload failed: ' + error.message)
+            setUploading(false)
+            setUploadProgress(0)
+        }
+    }
 
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -24,8 +70,12 @@ export default function NewTopicPage({ params }: { params: Promise<{ id: string 
         const formData = new FormData(event.currentTarget)
         const title = formData.get('title') as string
         const description = formData.get('description') as string
-        const video_url = formData.get('video_url') as string
-        const duration = parseInt(formData.get('duration') as string) || 0
+
+        if (!videoUrl) {
+            alert('Please upload a video file')
+            setLoading(false)
+            return
+        }
 
         // 1. Get current max order to append to end
         const { data: existingTopics } = await supabase
@@ -42,8 +92,7 @@ export default function NewTopicPage({ params }: { params: Promise<{ id: string 
             course_id: courseId,
             title,
             description,
-            video_url,
-            video_duration_seconds: duration * 60, // convert minutes to seconds
+            video_url: videoUrl,
             order_index: nextOrder,
         })
 
@@ -52,7 +101,14 @@ export default function NewTopicPage({ params }: { params: Promise<{ id: string 
         } else if (error) {
             alert('Error creating topic: ' + error.message)
         } else {
-            router.push(`/admin/courses/${courseId}`)
+            const action = formData.get('action') as string
+            if (action === 'save-quiz') {
+                // Redirect to quiz creation for the new topic
+                // Note: You'll need to get the new topic ID, this is simplified
+                router.push(`/admin/courses/${courseId}`)
+            } else {
+                router.push(`/admin/courses/${courseId}`)
+            }
             router.refresh()
         }
         setLoading(false)
@@ -86,15 +142,45 @@ export default function NewTopicPage({ params }: { params: Promise<{ id: string 
                     <Textarea id="description" name="description" placeholder="Brief summary of what this topic covers..." className="border-2 border-foreground min-h-[100px]" />
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="video_url" className="font-bold">Video URL</Label>
-                    <Input id="video_url" name="video_url" required placeholder="https://..." className="border-2 border-foreground" />
-                    <p className="text-xs text-muted-foreground">Direct link to mp4 or supported video host.</p>
-                </div>
+                <div className="space-y-3 bg-secondary/10 p-4 border-2 border-foreground rounded-xl">
+                    <Label className="font-bold flex items-center gap-2">
+                        <Upload className="h-4 w-4" /> Video Upload
+                    </Label>
 
-                <div className="space-y-2">
-                    <Label htmlFor="duration" className="font-bold">Duration (minutes)</Label>
-                    <Input id="duration" name="duration" type="number" min="0" placeholder="10" className="border-2 border-foreground" />
+                    <div className="space-y-3">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="video/*"
+                            className="hidden"
+                        />
+                        <Button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploading}
+                            className="w-full border-2 border-foreground bg-yellow-400 text-foreground font-black hover:bg-yellow-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                        >
+                            {uploading ? (
+                                <><Loader2 className="animate-spin mr-2 h-4 w-4" /> UPLOADING {uploadProgress}%</>
+                            ) : (
+                                <><Upload className="mr-2 h-4 w-4 stroke-[3px]" /> UPLOAD FROM COMPUTER</>
+                            )}
+                        </Button>
+                        {uploading && (
+                            <div className="h-2 w-full bg-foreground/10 border border-foreground overflow-hidden">
+                                <div
+                                    className="h-full bg-primary transition-all duration-300"
+                                    style={{ width: `${uploadProgress}%` }}
+                                />
+                            </div>
+                        )}
+                        {videoUrl && !uploading && (
+                            <div className="p-3 bg-green-50 border-2 border-green-500 rounded-lg">
+                                <p className="text-sm font-bold text-green-800">✅ Video uploaded successfully</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-4">
