@@ -46,49 +46,34 @@ export default function AdminCoursesPage() {
             return
         }
 
-<<<<<<< Updated upstream
         try {
             console.log('Starting course deletion for:', id)
 
-            // Call the API endpoint instead of direct Supabase deletion
-            const response = await fetch(`/api/courses?id=${id}`, {
+            // Use API route with Service Role to bypass RLS
+            // CORRECT API PATH: /api/courses/[id]
+            const response = await fetch(`/api/courses/${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             })
 
-            const result = await response.json()
-
             if (!response.ok) {
+                const result = await response.json()
                 throw new Error(result.error || 'Failed to delete course')
             }
 
-            console.log('Course deletion result:', result)
+            console.log('Course deleted successfully')
 
             // Remove from local state
-=======
-        // Use API route with Service Role to bypass RLS
-        const res = await fetch(`/api/courses/${id}`, {
-            method: 'DELETE'
-        })
-
-        if (!res.ok) {
-            const err = await res.json()
-            alert('Error deleting course: ' + (err.error || 'Unknown error'))
-        } else {
->>>>>>> Stashed changes
             setCourses(courses.filter(c => c.id !== id))
-            
+
             // Show success message
             alert('Course deleted successfully!')
-            
+
         } catch (error: any) {
             console.error('Course deletion error:', error)
-            
+
             // Provide detailed error message
             let errorMessage = 'Error deleting course: '
-            
+
             if (error.message.includes('foreign key constraint')) {
                 errorMessage += 'Foreign key constraint violation. Related data exists that cannot be automatically deleted.'
             } else if (error.message.includes('permission')) {
@@ -98,7 +83,7 @@ export default function AdminCoursesPage() {
             } else {
                 errorMessage += error.message
             }
-            
+
             alert(errorMessage + '\n\nCheck the browser console and server logs for detailed error information.')
         }
     }
