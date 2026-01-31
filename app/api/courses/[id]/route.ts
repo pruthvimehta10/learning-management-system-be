@@ -2,9 +2,18 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Use Service Role Key to bypass RLS for Admin actions
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('CRITICAL ERROR: Missing Supabase Environment Variables in /api/courses/[id]')
+  console.error('NEXT_PUBLIC_SUPABASE_URL exists:', !!supabaseUrl)
+  console.error('SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseServiceKey)
+}
+
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl || '',
+  supabaseServiceKey || ''
 )
 
 export async function GET(
