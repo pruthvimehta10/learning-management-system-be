@@ -7,31 +7,44 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const videoUrl = searchParams.get('url')
     const topicId = searchParams.get('topicId')
-    
+
     if (!videoUrl || !topicId) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
     }
 
-    // Verify user has access to this topic
+    if (!videoUrl.startsWith('http')) {
+      console.error('Video API: Invalid video URL protocol', { videoUrl })
+      return NextResponse.json({ error: 'Invalid video URL' }, { status: 400 })
+    }
+
+    // 1. Fetch topic Details
     const { data: topic, error: topicError } = await supabase
       .from('topics')
-      .select(`
-        id,
-        course_id,
-        courses (
-          id,
-          is_published
-        )
-      `)
+      .select('id, course_id')
       .eq('id', topicId)
       .single()
 
     if (topicError || !topic) {
+      console.error('Video API: Topic not found', { topicId, error: topicError })
       return NextResponse.json({ error: 'Topic not found' }, { status: 404 })
     }
 
-    if (!topic.courses?.is_published) {
-      return NextResponse.json({ error: 'Course not published' }, { status: 403 })
+    // 2. Fetch Course to check if published
+    const { data: course, error: courseError } = await supabase
+      .from('courses')
+      .select('id, is_published')
+      .eq('id', topic.course_id)
+      .single()
+
+    if (courseError || !course) {
+      console.error('Video API: Course not found', { courseId: topic.course_id, error: courseError })
+      return NextResponse.json({ error: 'Course not found' }, { status: 404 })
+    }
+
+    // For development, we might want to bypass this check or at least log it
+    if (!course.is_published) {
+      console.warn('Video API: Accessing unpublished course', { courseId: course.id })
+      // return NextResponse.json({ error: 'Course not published' }, { status: 403 })
     }
 
     // Check if user is enrolled (you might want to add this logic)
@@ -46,66 +59,47 @@ export async function GET(req: NextRequest) {
     //   return NextResponse.json({ error: 'Not enrolled' }, { status: 403 })
     // }
 
-    // Fetch the video with proper headers
+    // 4. Forward the request to the upstream video provider
+    const rangeHeader = req.headers.get('range')
+    const fetchHeaders: any = {
+      'User-Agent': req.headers.get('User-Agent') || '',
+    }
+    if (rangeHeader) {
+      fetchHeaders['Range'] = rangeHeader
+    }
+
+    console.log('Video API: Fetching upstream video', { videoUrl, range: rangeHeader })
     const response = await fetch(videoUrl, {
       method: 'GET',
-      headers: {
-        'User-Agent': req.headers.get('User-Agent') || '',
-        'Referer': process.env.NEXT_PUBLIC_APP_URL || '',
-        'Origin': process.env.NEXT_PUBLIC_APP_URL || '',
-      },
+      headers: fetchHeaders,
     })
 
-    if (!response.ok) {
+    if (!response.ok && response.status !== 206) {
+      console.error('Video API: Upstream fetch failed', { status: response.status, videoUrl })
       return NextResponse.json({ error: 'Failed to fetch video' }, { status: 500 })
     }
 
-    // Get video content type
+    // 5. Build response headers from upstream response
     const contentType = response.headers.get('content-type') || 'video/mp4'
+    const contentLength = response.headers.get('content-length')
+    const contentRange = response.headers.get('content-range')
 
-    // Create headers to prevent caching and direct access
     const headers = new Headers({
       'Content-Type': contentType,
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Disposition': 'inline', // Prevents download prompt
-      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || '',
-      'Access-Control-Allow-Methods': 'GET',
-      'Access-Control-Allow-Headers': 'Range',
+      'Content-Disposition': 'inline',
       'Accept-Ranges': 'bytes',
     })
 
-    // Handle range requests for video streaming
-    const range = req.headers.get('range')
-    if (range) {
-      const videoBuffer = await response.arrayBuffer()
-      const videoSize = videoBuffer.byteLength
-      
-      const [start, end] = range.replace(/bytes=/, '').split('-')
-      const startByte = parseInt(start, 10)
-      const endByte = end ? parseInt(end, 10) : videoSize - 1
-      const chunkSize = (endByte - startByte) + 1
+    if (contentLength) headers.set('Content-Length', contentLength)
+    if (contentRange) headers.set('Content-Range', contentRange)
 
-      headers.set('Content-Range', `bytes ${startByte}-${endByte}/${videoSize}`)
-      headers.set('Content-Length', chunkSize.toString())
-      headers.set('Accept-Ranges', 'bytes')
-
-      const videoChunk = videoBuffer.slice(startByte, endByte + 1)
-      
-      return new NextResponse(videoChunk, {
-        status: 206, // Partial content
-        headers,
-      })
-    }
-
-    // Stream the video content
-    const videoBuffer = await response.arrayBuffer()
-    headers.set('Content-Length', videoBuffer.byteLength.toString())
-
-    return new NextResponse(videoBuffer, {
-      status: 200,
+    // 6. Return the video stream (Next.js handles ReadableStream automatically)
+    return new NextResponse(response.body, {
+      status: response.status,
       headers,
     })
 

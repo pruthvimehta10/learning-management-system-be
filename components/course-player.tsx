@@ -123,27 +123,23 @@ export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlay
     <div className="bg-background min-h-screen">
       {/* CSS to prevent dragging while showing timeline and time */}
       <style jsx global>{`
+        /* Keep video interactive but limit specific control elements */
+        video {
+          pointer-events: auto !important;
+        }
+        
         /* Prevent dragging on timeline but keep it visible */
         video::-webkit-media-controls-timeline {
           pointer-events: none !important;
         }
         
-        /* Keep current time and remaining time displays visible */
+        /* Keep current time and remaining time displays visible but not interactive */
         video::-webkit-media-controls-current-time-display,
         video::-webkit-media-controls-time-remaining-display {
           pointer-events: none !important;
         }
         
-        /* Prevent right-click download options */
-        video {
-          pointer-events: none !important;
-        }
-        
-        video::-webkit-media-controls {
-          pointer-events: auto !important;
-        }
-        
-        /* Re-enable play/pause, volume, and fullscreen but not timeline */
+        /* Re-enable core controls */
         video::-webkit-media-controls-play-button,
         video::-webkit-media-controls-mute-button,
         video::-webkit-media-controls-volume-slider,
@@ -292,7 +288,7 @@ export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlay
                         } ${topic.isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
+                        <div className="shrink-0 mt-1">
                           {topic.completed ? (
                             <CheckCircle className="h-5 w-5 text-green-600" />
                           ) : topic.isLocked ? (
@@ -319,7 +315,7 @@ export function CoursePlayer({ courseTitle, topics, initialTopicId }: CoursePlay
                     className="block w-full text-left p-3 mt-4 border border-border/10 bg-secondary/30 hover:bg-secondary/60 rounded-2xl transition-colors cursor-pointer"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">
+                      <div className="shrink-0 mt-1">
                         <Badge className="bg-primary text-primary-foreground">Ex</Badge>
                       </div>
                       <div className="flex-1 min-w-0 hover:text-white transition-all">
