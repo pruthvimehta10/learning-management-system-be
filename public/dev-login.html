@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Dev Login</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0 0 30px 0;
+            color: #333;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .admin-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .admin-btn:hover {
+            background: #2563eb;
+        }
+
+        .client-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .client-btn:hover {
+            background: #059669;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 LMS Dev Login</h1>
+
+        <div class="info">
+            <strong>Development Tool:</strong> Click a button below to generate and set a JWT token for testing.
+        </div>
+
+        <button class="admin-btn" onclick="login('admin')">
+            Login as Admin
+        </button>
+
+        <button class="client-btn" onclick="login('client')">
+            Login as Client
+        </button>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout (Clear Token)
+        </button>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function login(role) {
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = 'Generating token...';
+            statusEl.className = 'status info';
+
+            try {
+                const response = await fetch('/api/dev/generate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        role: role,
+                        sub: `00000000-0000-0000-0000-${role === 'admin' ? '000000000001' : '000000000002'}`
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate token');
+                }
+
+                const { token } = await response.json();
+
+                // Set cookie
+                document.cookie = `auth_token=${token}; path=/; max-age=86400`; // 24 hours
+
+                statusEl.innerHTML = `
+                    <strong>✅ Success!</strong><br>
+                    Logged in as <strong>${role}</strong><br>
+                    Token set in cookie. You can now access protected pages.<br><br>
+                    <a href="/admin" style="color: #2563eb;">Go to Admin Dashboard →</a>
+                `;
+                statusEl.className = 'status success';
+            } catch (error) {
+                statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+                statusEl.className = 'status error';
+            }
+        }
+
+        function logout() {
+            document.cookie = 'auth_token=; path=/; max-age=0';
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = '<strong>Logged out successfully.</strong> Token cleared.';
+            statusEl.className = 'status success';
+        }
+
+        // Check if already logged in
+        window.onload = function () {
+            const cookies = document.cookie.split(';');
+            const hasToken = cookies.some(c => c.trim().startsWith('auth_token='));
+
+            if (hasToken) {
+                const statusEl = document.getElementById('status');
+                statusEl.innerHTML = '<strong>ℹ️ Already logged in.</strong> You can access protected pages or logout and login again.';
+                statusEl.className = 'status info';
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         const secretKey = new TextEncoder().encode(secret)
 
         const token = await new SignJWT({
-            sub: sub || `test_${role}_id`,
+            sub: sub || `00000000-0000-0000-0000-${role === 'admin' ? '000000000001' : '000000000002'}`,
             role: role,
         })
             .setProtectedHeader({ alg: 'HS256' })
