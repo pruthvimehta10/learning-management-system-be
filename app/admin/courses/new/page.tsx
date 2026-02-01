@@ -32,29 +32,33 @@ export default function NewCoursePage() {
         const description = formData.get('description') as string
         const category_id = formData.get('category_id') === 'none' ? null : formData.get('category_id') as string
 
-        const { data: { user } } = await supabase.auth.getUser()
+        // Use API route instead of direct Supabase client to leverage middleware auth
+        try {
+            const res = await fetch('/api/courses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    category_id
+                })
+            })
 
-        if (!user) {
-            alert('You must be logged in to create a course')
-            setLoading(false)
-            return
-        }
+            if (!res.ok) {
+                const err = await res.json()
+                throw new Error(err.error || 'Failed to create course')
+            }
 
-        const { error } = await supabase.from('courses').insert({
-            title,
-            description,
-            category_id: category_id || null, // Allow empty for uncategorized
-            instructor_id: user.id,
-            is_published: true,
-        })
-
-        if (error) {
-            alert('Error creating course: ' + error.message)
-        } else {
+            alert('Course created successfully')
             router.push('/admin/courses')
             router.refresh()
+        } catch (error: any) {
+            alert('Error creating course: ' + (error.message || 'Unknown error'))
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     return (
