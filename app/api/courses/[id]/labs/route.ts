@@ -1,5 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+
+// Use Service Role Key to bypass RLS for Admin actions
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 // Get labs assigned to a course
 export async function GET(
@@ -8,8 +14,6 @@ export async function GET(
 ) {
     const { id } = await params
     try {
-        const supabase = await createClient()
-
         // Join course_labs with labs
         const { data: courseLabs, error } = await supabase
             .from('course_labs')
@@ -43,7 +47,6 @@ export async function POST(
     const { id } = await params
     try {
         const { labIds } = await req.json() // Expects array of lab IDs
-        const supabase = await createClient()
 
         // Transaction-like approach: 
         // 1. Delete existing assignments for this course
