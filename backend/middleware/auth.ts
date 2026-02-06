@@ -1,7 +1,8 @@
 
+import { Request, Response, NextFunction } from 'express';
 import { jwtVerify } from 'jose';
 
-const authMiddleware = async (req, res, next) => {
+const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const authHeader = req.headers.authorization;
         let token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
@@ -26,7 +27,7 @@ const authMiddleware = async (req, res, next) => {
 
         req.user = {
             userId: payload.sub,
-            role: payload.role,
+            role: payload.role as string | undefined,
             ...payload
         };
 
